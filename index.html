@@ -165,6 +165,10 @@ tr:hover td{background:var(--g1)}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--g8);color:var(--w);padding:11px 22px;border-radius:24px;font-size:.87rem;font-weight:500;z-index:9000;box-shadow:var(--shl);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;transform:translateX(-50%) translateY(8px)}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* SALE DETAILS */
+.saleDetail{font-size:.82rem;color:var(--gr6);margin-top:4px}
+.saleNote{background:var(--g1);padding:8px;border-left:3px solid var(--g5);border-radius:4px;font-size:.8rem;color:var(--g7);margin-top:6px;font-style:italic}
+
 /* UTILS */
 .fb{display:flex;justify-content:space-between;align-items:center}
 .tg{color:var(--g6)}
@@ -269,12 +273,7 @@ tr:hover td{background:var(--g1)}
         <button class="btn bp bsm" onclick="showModal('mSale')">+ Add Sale</button>
       </div>
       <div class="card">
-        <div class="twrap">
-          <table>
-            <thead><tr><th>Date</th><th>Type</th><th>Items</th><th>Revenue (KES)</th><th></th></tr></thead>
-            <tbody id="tSales"></tbody>
-          </table>
-        </div>
+        <div id="salesList"></div>
         <div class="empty" id="eSales"><div class="ei">💰</div><p>No sales yet. Record your first sale!</p></div>
       </div>
     </div>
@@ -583,7 +582,6 @@ function addSaleItem(){
   sItemCount++;renderSaleItems();
 }
 function remSaleItem(i){
-  // collect current values, remove row i, rebuild
   const vals=[];
   for(let j=0;j<sItemCount;j++){
     const c=document.getElementById('siC'+j)?.value;
@@ -601,7 +599,6 @@ function remSaleItem(i){
     </div>`;
   }
   document.getElementById('sItems').innerHTML=h;
-  // restore cat selects
   vals.forEach((v,j)=>{const sel=document.getElementById('siC'+j);if(sel&&v.c)sel.value=v.c;});
 }
 function saveSale(){
@@ -624,18 +621,23 @@ function saveSale(){
   toast('✅ Sale saved!');
 }
 function renderSales(){
-  const tb=document.getElementById('tSales');
+  const lst=document.getElementById('salesList');
   const em=document.getElementById('eSales');
   const rows=[...S.sales].sort((a,b)=>b.date.localeCompare(a.date));
-  if(!rows.length){tb.innerHTML='';em.style.display='block';return}
+  if(!rows.length){lst.innerHTML='';em.style.display='block';return}
   em.style.display='none';
-  tb.innerHTML=rows.map(s=>`<tr>
-    <td>${fmtD(s.date)}</td>
-    <td><span class="badge ${s.typ==='B2C'?'bg':'bb'}">${s.typ}</span></td>
-    <td style="font-size:.82rem">${s.items.map(i=>`${i.qty}× ${i.cat}`).join(', ')}</td>
-    <td><strong>${fmtN(s.rev)}</strong></td>
-    <td><button class="btn bd bsm" onclick="delSale('${s.id}')">✕</button></td>
-  </tr>`).join('');
+  lst.innerHTML=rows.map(s=>`<div style="background:var(--gr1);padding:12px;border-radius:8px;margin-bottom:8px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-weight:600">${fmtD(s.date)}</span>
+        <span class="badge ${s.typ==='B2C'?'bg':'bb'}">${s.typ}</span>
+        <span style="font-weight:700;color:var(--g6)">KES ${fmtN(s.rev)}</span>
+      </div>
+      <button class="btn bd bsm" onclick="delSale('${s.id}')">✕</button>
+    </div>
+    <div class="saleDetail">📦 ${s.items.map(i=>`${i.qty}× ${i.cat}`).join(', ')}</div>
+    ${s.notes?`<div class="saleNote">👤 ${s.notes}</div>`:''}
+  </div>`).join('');
 }
 function delSale(id){
   S.sales=S.sales.filter(s=>s.id!==id);
@@ -744,7 +746,6 @@ function renderDashboard(){
   document.getElementById('dLoan').textContent=fmtKES(lrem);
   const sd=stockData();
   document.getElementById('dStock').textContent=sd.reduce((s,d)=>s+d.inStock,0)+' pcs';
-  // top cat
   const cs={};
   S.sales.forEach(sale=>{
     const d=new Date(sale.date);
@@ -754,13 +755,11 @@ function renderDashboard(){
   const top=Object.entries(cs).sort((a,b)=>b[1]-a[1])[0];
   document.getElementById('dTop').textContent=top?top[0]:'No sales yet';
   document.getElementById('dTopSub').textContent=top?top[1]+' pieces sold this month':'';
-  // alerts
   const al=s.lowSt;
   const alItems=sd.filter(d=>d.inStock<=al);
   document.getElementById('dAlerts').innerHTML=alItems.length
     ?alItems.map(d=>`<div class="srow"><div class="sname">${d.cat}</div><span class="badge ${d.inStock===0?'br':'bo'}">${d.inStock===0?'OUT OF STOCK':'LOW: '+d.inStock+' pcs'}</span></div>`).join('')
     :'<p style="font-size:.85rem;color:var(--gr4)">All categories well stocked ✅</p>';
-  // recent
   const rec=[...S.sales].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
   document.getElementById('dRecent').innerHTML=rec.length
     ?rec.map(s=>`<div class="fline"><span class="flab">${fmtD(s.date)} · <span class="badge ${s.typ==='B2C'?'bg':'bb'}">${s.typ}</span> ${s.items.map(i=>i.qty+'× '+i.cat).join(', ')}</span><span class="fval tg">${fmtKES(s.rev)}</span></div>`).join('')
