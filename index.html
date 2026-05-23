@@ -1,42 +1,803 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Calculator</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Mitumba Shop Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --g9:#1a3a2a;--g8:#1e4d35;--g7:#2d6a4f;--g6:#40916c;--g5:#52b788;
+  --g4:#74c69d;--g2:#d8f3dc;--g1:#f0faf3;
+  --gold:#e9c46a;--goldd:#c49a3c;--red:#e63946;--orange:#f4a261;
+  --w:#fefefe;--gr0:#f8f9fa;--gr1:#f1f3f5;--gr2:#e9ecef;
+  --gr4:#adb5bd;--gr6:#6c757d;--gr8:#343a40;
+  --sh:0 2px 12px rgba(0,0,0,.08);--shl:0 8px 32px rgba(0,0,0,.12);
+  --r:14px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--gr0);color:var(--gr8);min-height:100vh;font-size:15px}
+
+/* LOCK */
+#lockScreen{position:fixed;inset:0;z-index:9999;background:linear-gradient(145deg,var(--g9),var(--g7) 60%,var(--g5));display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.ll{font-family:'Syne',sans-serif;font-size:2.6rem;font-weight:800;color:var(--w);letter-spacing:-1px;margin-bottom:6px}
+.ll span{color:var(--gold)}
+.ls{color:var(--g2);font-size:.9rem;margin-bottom:40px;text-align:center}
+.lcard{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:32px 28px;width:100%;max-width:380px;backdrop-filter:blur(12px)}
+.lcard h2{font-family:'Syne',sans-serif;color:var(--w);font-size:1.1rem;margin-bottom:20px;text-align:center}
+.linput{width:100%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:14px 16px;color:var(--w);font-size:1.2rem;text-align:center;letter-spacing:4px;margin-bottom:8px;font-family:'Syne',sans-serif;outline:none}
+.linput::placeholder{color:rgba(255,255,255,.4);letter-spacing:2px}
+.lerr{color:#ff8a80;font-size:.85rem;text-align:center;margin-bottom:10px;display:none}
+.bunlock{width:100%;padding:14px;background:var(--gold);color:var(--g9);border:none;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:all .2s}
+.bunlock:hover{background:var(--goldd)}
+.ldemo{margin-top:16px;text-align:center}
+.ldemo a{color:var(--g2);font-size:.85rem;cursor:pointer;text-decoration:underline}
+.lprice{margin-top:28px;text-align:center;color:var(--g2);font-size:.82rem;line-height:1.7}
+.lprice strong{color:var(--gold)}
+
+/* APP */
+#app{display:none;flex-direction:column;min-height:100vh}
+#app.on{display:flex}
+header{background:var(--g8);padding:0 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;height:56px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.htitle{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;color:var(--w);letter-spacing:-.5px}
+.htitle span{color:var(--gold)}
+.hbtns{display:flex;gap:8px}
+.ibtn{background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:7px 10px;color:var(--w);cursor:pointer;font-size:.8rem;display:flex;align-items:center;gap:4px;transition:all .2s}
+.ibtn:hover{background:rgba(255,255,255,.2)}
+
+/* NAV */
+nav{background:var(--w);display:flex;overflow-x:auto;border-bottom:2px solid var(--gr1);position:sticky;top:56px;z-index:99;-webkit-overflow-scrolling:touch}
+nav::-webkit-scrollbar{display:none}
+.ntab{flex:none;padding:14px 16px;border:none;background:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.83rem;font-weight:500;color:var(--gr6);white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.ntab.on{color:var(--g7);border-bottom-color:var(--g6);font-weight:600}
+
+/* MAIN */
+main{flex:1;padding:16px;max-width:800px;margin:0 auto;width:100%}
+.pg{display:none}
+.pg.on{display:block}
+
+/* CARDS */
+.card{background:var(--w);border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:16px}
+.ctitle{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--g8);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+/* STAT GRID */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.sbox{background:var(--w);border-radius:var(--r);padding:16px;box-shadow:var(--sh);border-left:4px solid var(--g5)}
+.sbox.red{border-left-color:var(--red)}
+.sbox.gold{border-left-color:var(--gold)}
+.sbox.ora{border-left-color:var(--orange)}
+.slabel{font-size:.74rem;color:var(--gr6);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.sval{font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:700;color:var(--g8)}
+.sval.red{color:var(--red)}
+.sval.gold{color:var(--goldd)}
+
+/* PERSONAL DRAW */
+.pdraw{background:linear-gradient(135deg,var(--g8),var(--g6));border-radius:var(--r);padding:24px;margin-bottom:16px;text-align:center;box-shadow:var(--shl)}
+.pdraw .plabel{color:var(--g2);font-size:.82rem;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
+.pdraw .pamount{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;color:var(--gold);margin-bottom:4px}
+.pdraw .psub{color:var(--g2);font-size:.8rem}
+
+/* FORMS */
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:.8rem;font-weight:600;color:var(--gr6);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.fi,.fs{width:100%;padding:11px 14px;border:1.5px solid var(--gr2);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:.95rem;background:var(--w);color:var(--gr8);outline:none;transition:border .2s}
+.fi:focus,.fs:focus{border-color:var(--g5)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fhint{font-size:.76rem;color:var(--gr4);margin-top:4px}
+
+/* BUTTONS */
+.btn{padding:12px 20px;border:none;border-radius:var(--rs);cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.bp{background:var(--g6);color:var(--w)}
+.bp:hover{background:var(--g7);transform:translateY(-1px)}
+.bs{background:var(--gr1);color:var(--gr8)}
+.bd{background:var(--red);color:var(--w)}
+.bsm{padding:6px 12px;font-size:.78rem}
+.bfull{width:100%;justify-content:center}
+
+/* TABLES */
+.twrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;min-width:480px}
+th{background:var(--g1);color:var(--g8);font-family:'Syne',sans-serif;font-size:.76rem;text-transform:uppercase;letter-spacing:.5px;padding:10px 12px;text-align:left}
+td{padding:10px 12px;border-bottom:1px solid var(--gr1);font-size:.87rem;color:var(--gr8);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--g1)}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:.73rem;font-weight:600}
+.bg{background:var(--g2);color:var(--g8)}
+.bb{background:#dbeafe;color:#1e40af}
+.br{background:#fee2e2;color:#991b1b}
+.bo{background:#fef3c7;color:#92400e}
+
+/* STOCK ROWS */
+.srow{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--gr1)}
+.srow:last-child{border-bottom:none}
+.sname{flex:1;font-weight:500}
+.sqty{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;min-width:46px;text-align:right}
+.sbwrap{flex:2;background:var(--gr1);border-radius:4px;height:8px;overflow:hidden}
+.sbar{height:100%;border-radius:4px;transition:width .4s}
+.sbar.ok{background:var(--g5)}
+.sbar.low{background:var(--orange)}
+.sbar.out{background:var(--red)}
+
+/* SETTINGS */
+.stitle{font-family:'Syne',sans-serif;font-size:.83rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--g7);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--g2)}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* MONTH BAR */
+.mbar{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;-webkit-overflow-scrolling:touch}
+.mbar::-webkit-scrollbar{display:none}
+.mchip{flex:none;padding:6px 14px;border-radius:20px;border:none;background:var(--gr1);color:var(--gr6);cursor:pointer;font-size:.82rem;font-weight:500;transition:all .2s}
+.mchip.on{background:var(--g6);color:var(--w)}
+
+/* EMPTY */
+.empty{text-align:center;padding:36px 20px;color:var(--gr4)}
+.empty .ei{font-size:2.8rem;margin-bottom:10px}
+
+/* MODAL */
+.moverlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:flex-end;backdrop-filter:blur(4px)}
+.modal{background:var(--w);border-radius:20px 20px 0 0;width:100%;max-width:520px;margin:0 auto;padding:24px 20px 32px;max-height:92vh;overflow-y:auto;animation:sup .28s ease}
+@keyframes sup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mtitle{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:var(--g8);margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.mclose{background:var(--gr1);border:none;border-radius:8px;padding:6px 11px;cursor:pointer;font-size:1rem;line-height:1}
+
+/* FINANCE */
+.fline{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--gr1)}
+.fline:last-child{border-bottom:none}
+.flab{font-size:.88rem;color:var(--gr6)}
+.fval{font-family:'Syne',sans-serif;font-weight:600;font-size:.93rem;color:var(--gr8)}
+.ftot{background:var(--g1);margin:0 -20px;padding:12px 20px;border-radius:8px}
+.ftot .flab{font-weight:700;color:var(--g8)}
+.ftot .fval{color:var(--g7);font-size:1.05rem}
+.fcost .fval{color:var(--red)}
+.lprog{background:var(--gr1);border-radius:8px;height:12px;overflow:hidden;margin:8px 0}
+.lbar{background:var(--g5);height:100%;border-radius:8px;transition:width .4s}
+
+/* BUNDLE ITEMS */
+.brow{display:grid;grid-template-columns:1fr 80px 32px;gap:6px;margin-bottom:8px;align-items:center}
+.badd{background:none;border:1.5px dashed var(--g4);color:var(--g6);border-radius:8px;padding:8px;width:100%;cursor:pointer;font-size:.84rem;margin-bottom:12px;transition:all .2s}
+.badd:hover{background:var(--g1)}
+.bdel{background:none;border:none;color:var(--gr4);cursor:pointer;font-size:1.1rem;padding:0 4px}
+.bdel:hover{color:var(--red)}
+
+/* PREVIEW */
+.preview{background:var(--g1);border-radius:var(--rs);padding:12px 14px;margin-bottom:14px;font-size:.84rem;color:var(--g7)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--g8);color:var(--w);padding:11px 22px;border-radius:24px;font-size:.87rem;font-weight:500;z-index:9000;box-shadow:var(--shl);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;transform:translateX(-50%) translateY(8px)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* UTILS */
+.fb{display:flex;justify-content:space-between;align-items:center}
+.tg{color:var(--g6)}
+.tr{color:var(--red)}
+.fw7{font-weight:700}
+.mb0{margin-bottom:0}
+@media(max-width:400px){.sgrid,.frow,.cgrid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-    <div class="calculator-container">
-        <h1>Calculator</h1>
-        <div class="calculator">
-            <input type="text" id="display" class="display" readonly>
-            <div class="buttons">
-                <button class="btn clear" onclick="clearDisplay()">C</button>
-                <button class="btn operator" onclick="appendOperator('/')">÷</button>
-                <button class="btn operator" onclick="appendOperator('*')">×</button>
-                <button class="btn operator" onclick="deleteLast()">←</button>
 
-                <button class="btn" onclick="appendNumber('7')">7</button>
-                <button class="btn" onclick="appendNumber('8')">8</button>
-                <button class="btn" onclick="appendNumber('9')">9</button>
-                <button class="btn operator" onclick="appendOperator('-')">-</button>
+<!-- LOCK -->
+<div id="lockScreen">
+  <div class="ll">mitumba<span>.</span></div>
+  <p class="ls">Smart shop manager for secondhand clothing</p>
+  <div class="lcard">
+    <h2>Enter Your Access Code</h2>
+    <input class="linput" id="codeInput" type="text" placeholder="CODE" maxlength="10"
+           oninput="this.value=this.value.toUpperCase()">
+    <div class="lerr" id="lerr">❌ Invalid code. Please try again.</div>
+    <button class="bunlock" onclick="checkCode()">Unlock →</button>
+    <div class="ldemo"><a onclick="unlockApp()">Try free demo (no code needed)</a></div>
+  </div>
+  <div class="lprice">
+    Monthly subscription: <strong>KES 300</strong><br>
+    Send via M-Pesa · <strong>0700 000 000</strong><br>
+    Include your name → receive code within 1 hour
+  </div>
+</div>
 
-                <button class="btn" onclick="appendNumber('4')">4</button>
-                <button class="btn" onclick="appendNumber('5')">5</button>
-                <button class="btn" onclick="appendNumber('6')">6</button>
-                <button class="btn operator" onclick="appendOperator('+')">+</button>
-
-                <button class="btn" onclick="appendNumber('1')">1</button>
-                <button class="btn" onclick="appendNumber('2')">2</button>
-                <button class="btn" onclick="appendNumber('3')">3</button>
-                <button class="btn decimal" onclick="appendNumber('.')">.</button>
-
-                <button class="btn zero" onclick="appendNumber('0')">0</button>
-                <button class="btn equals" onclick="calculateResult()">=</button>
-            </div>
-        </div>
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="htitle">mitumba<span>.</span></div>
+    <div class="hbtns">
+      <button class="ibtn" onclick="exportData()">💾 Backup</button>
+      <button class="ibtn" onclick="document.getElementById('impFile').click()">📂 Restore</button>
+      <input type="file" id="impFile" accept=".json" style="display:none" onchange="importData(event)">
     </div>
-    <script src="script.js"></script>
+  </header>
+
+  <nav>
+    <button class="ntab on" onclick="nav('dashboard',this)">📊 Dashboard</button>
+    <button class="ntab" onclick="nav('purchases',this)">📦 Purchases</button>
+    <button class="ntab" onclick="nav('sales',this)">💰 Sales</button>
+    <button class="ntab" onclick="nav('finance',this)">📈 Finance</button>
+    <button class="ntab" onclick="nav('stock',this)">🏪 Stock</button>
+    <button class="ntab" onclick="nav('settings',this)">⚙️ Settings</button>
+  </nav>
+
+  <main>
+
+    <!-- DASHBOARD -->
+    <div class="pg on" id="pg-dashboard">
+      <div class="pdraw">
+        <div class="plabel">💰 Money for personal use this month</div>
+        <div class="pamount" id="dNet">KES 0</div>
+        <div class="psub" id="dMonth">–</div>
+      </div>
+      <div class="sgrid">
+        <div class="sbox"><div class="slabel">Revenue this month</div><div class="sval" id="dRev">0</div></div>
+        <div class="sbox red"><div class="slabel">Total costs</div><div class="sval red" id="dCosts">0</div></div>
+        <div class="sbox gold"><div class="slabel">Items in stock</div><div class="sval gold" id="dStock">0</div></div>
+        <div class="sbox ora"><div class="slabel">Loan remaining</div><div class="sval" id="dLoan">0</div></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">🏆 Top selling category this month</div>
+        <div id="dTop" class="fw7 tg" style="font-size:1.1rem">–</div>
+        <div id="dTopSub" style="font-size:.82rem;color:var(--gr4);margin-top:4px"></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">⚠️ Low stock alerts</div>
+        <div id="dAlerts"></div>
+      </div>
+      <div class="card mb0">
+        <div class="ctitle">🕐 Recent sales</div>
+        <div id="dRecent"></div>
+      </div>
+    </div>
+
+    <!-- PURCHASES -->
+    <div class="pg" id="pg-purchases">
+      <div class="fb" style="margin-bottom:16px">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;color:var(--g8)">Purchase Log</div>
+        <button class="btn bp bsm" onclick="showModal('mPurchase')">+ Add Purchase</button>
+      </div>
+      <div class="card">
+        <div class="twrap">
+          <table>
+            <thead><tr><th>Date</th><th>Category</th><th>Type</th><th>Pieces</th><th>Sellable</th><th>Cost (KES)</th><th>Cost/pc</th><th></th></tr></thead>
+            <tbody id="tPurchases"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="ePurchases"><div class="ei">📦</div><p>No purchases yet. Add your first stock!</p></div>
+      </div>
+    </div>
+
+    <!-- SALES -->
+    <div class="pg" id="pg-sales">
+      <div class="fb" style="margin-bottom:16px">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;color:var(--g8)">Sales Log</div>
+        <button class="btn bp bsm" onclick="showModal('mSale')">+ Add Sale</button>
+      </div>
+      <div class="card">
+        <div class="twrap">
+          <table>
+            <thead><tr><th>Date</th><th>Type</th><th>Items</th><th>Revenue (KES)</th><th></th></tr></thead>
+            <tbody id="tSales"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="eSales"><div class="ei">💰</div><p>No sales yet. Record your first sale!</p></div>
+      </div>
+    </div>
+
+    <!-- FINANCE -->
+    <div class="pg" id="pg-finance">
+      <div class="mbar" id="mBar"></div>
+      <div id="finBody"></div>
+    </div>
+
+    <!-- STOCK -->
+    <div class="pg" id="pg-stock">
+      <div class="card">
+        <div class="ctitle">🏪 Current Stock Levels</div>
+        <div id="stockList"></div>
+      </div>
+      <div class="sgrid">
+        <div class="sbox"><div class="slabel">Total pieces in stock</div><div class="sval" id="stockTot">0</div></div>
+        <div class="sbox gold"><div class="slabel">Stock value (KES)</div><div class="sval gold" id="stockVal">0</div></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="pg" id="pg-settings">
+      <div class="card">
+        <div style="margin-bottom:20px">
+          <div class="stitle">🏪 Shop Info</div>
+          <div class="fg"><label class="fl">Shop Name</label><input class="fi" id="sName" placeholder="My Mitumba Shop"></div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div class="stitle">👗 Product Categories (up to 10)</div>
+          <div class="cgrid" id="sCats"></div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div class="stitle">💸 Monthly Fixed Costs (KES)</div>
+          <div class="frow">
+            <div class="fg"><label class="fl">Rent</label><input class="fi" id="sRent" type="number" placeholder="15000"></div>
+            <div class="fg"><label class="fl">Wages</label><input class="fi" id="sWages" type="number" placeholder="8000"></div>
+          </div>
+          <div class="frow">
+            <div class="fg"><label class="fl">Other Costs</label><input class="fi" id="sOther" type="number" placeholder="3000"></div>
+            <div class="fg"><label class="fl">Annual Tax (KES/year)</label><input class="fi" id="sTax" type="number" placeholder="12000"></div>
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div class="stitle">🏦 Loan Details</div>
+          <div class="frow">
+            <div class="fg"><label class="fl">Total Borrowed</label><input class="fi" id="sLoanTot" type="number" placeholder="100000"></div>
+            <div class="fg"><label class="fl">Monthly Repayment</label><input class="fi" id="sLoanMo" type="number" placeholder="5000"></div>
+          </div>
+          <div class="fg"><label class="fl">Months Already Paid</label><input class="fi" id="sLoanPd" type="number" placeholder="0"></div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div class="stitle">📦 Bale Settings</div>
+          <div class="fg"><label class="fl">Unsellable Rate (%)</label><input class="fi" id="sUnsell" type="number" placeholder="20" min="0" max="100"><div class="fhint">Damaged / unusable pieces per bale. Default: 20%</div></div>
+        </div>
+        <div style="margin-bottom:24px">
+          <div class="stitle">⚠️ Low Stock Alert (pieces)</div>
+          <div class="fg"><input class="fi" id="sLowSt" type="number" placeholder="10"><div class="fhint">Show warning when any category falls below this number</div></div>
+        </div>
+        <button class="btn bp bfull" onclick="saveSettings()">💾 Save Settings</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL: PURCHASE -->
+<div class="moverlay" id="mPurchase" style="display:none" onclick="bgClose(event,'mPurchase')">
+  <div class="modal">
+    <div class="mtitle">📦 Add Purchase <button class="mclose" onclick="hideModal('mPurchase')">✕</button></div>
+    <div class="fg"><label class="fl">Date</label><input class="fi" id="pDate" type="date"></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Category</label><select class="fs" id="pCat"></select></div>
+      <div class="fg"><label class="fl">Purchase Type</label>
+        <select class="fs" id="pType" onchange="updPurchPrev()">
+          <option value="Single">Single pieces</option>
+          <option value="Bale">Bulk bale</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Total Pieces</label><input class="fi" id="pQty" type="number" placeholder="e.g. 300" min="1" oninput="updPurchPrev()"></div>
+      <div class="fg"><label class="fl">Total Cost (KES)</label><input class="fi" id="pCost" type="number" placeholder="e.g. 9000" min="0" oninput="updPurchPrev()"></div>
+    </div>
+    <div class="preview" id="pPrev">Fill in pieces and cost to see calculation preview.</div>
+    <button class="btn bp bfull" onclick="savePurchase()">Save Purchase</button>
+  </div>
+</div>
+
+<!-- MODAL: SALE -->
+<div class="moverlay" id="mSale" style="display:none" onclick="bgClose(event,'mSale')">
+  <div class="modal">
+    <div class="mtitle">💰 Add Sale <button class="mclose" onclick="hideModal('mSale')">✕</button></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Date</label><input class="fi" id="sDate" type="date"></div>
+      <div class="fg"><label class="fl">Sale Type</label>
+        <select class="fs" id="sType">
+          <option value="B2C">B2C – Single customer</option>
+          <option value="B2B">B2B – Bundle to trader</option>
+        </select>
+      </div>
+    </div>
+    <div><label class="fl" style="margin-bottom:8px">Items Sold:</label></div>
+    <div id="sItems"></div>
+    <button class="badd" onclick="addSaleItem()">+ Add another category</button>
+    <div class="fg"><label class="fl">Total Revenue (KES)</label><input class="fi" id="sRev" type="number" placeholder="e.g. 4200" min="0"></div>
+    <div class="fg"><label class="fl">Notes (optional)</label><input class="fi" id="sNotes" placeholder="e.g. Regular customer, Gikomba trader"></div>
+    <button class="btn bp bfull" onclick="saveSale()">Save Sale</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────
+const SK = 'mtb_v3';
+const CODES = ['DEMO2025','MTB300','SHOP2025','TESTMTB'];
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MLONG  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+let S = {
+  settings:{
+    shopName:'My Mitumba Shop',
+    cats:['Tops','Dresses','Belts','Handbags','Trousers','Jackets','Kids Clothes','Shoes','Skirts','Accessories'],
+    rent:15000,wages:8000,other:3000,tax:12000,
+    loanTot:100000,loanMo:5000,loanPd:0,
+    unsell:20,lowSt:10
+  },
+  purchases:[],
+  sales:[]
+};
+
+function lsLoad(){try{const r=localStorage.getItem(SK);if(r)S=JSON.parse(r)}catch(e){}}
+function lsSave(){localStorage.setItem(SK,JSON.stringify(S))}
+lsLoad();
+
+// ── LOCK ──────────────────────────────────────────────────────
+function checkCode(){
+  const v=document.getElementById('codeInput').value.trim().toUpperCase();
+  if(CODES.includes(v)){unlockApp()}
+  else{
+    document.getElementById('lerr').style.display='block';
+    document.getElementById('codeInput').style.borderColor='#ff5252';
+  }
+}
+document.getElementById('codeInput').addEventListener('keypress',e=>{if(e.key==='Enter')checkCode()});
+
+function unlockApp(){
+  document.getElementById('lockScreen').style.display='none';
+  const a=document.getElementById('app');
+  a.classList.add('on');
+  initApp();
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+function initApp(){
+  loadSettingsUI();
+  renderPurchases();
+  renderSales();
+  renderDashboard();
+  renderStock();
+  renderFinance();
+}
+
+// ── NAV ───────────────────────────────────────────────────────
+function nav(id,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  btn.classList.add('on');
+  if(id==='dashboard')renderDashboard();
+  if(id==='finance')renderFinance();
+  if(id==='stock')renderStock();
+}
+
+// ── MODALS ────────────────────────────────────────────────────
+function showModal(id){
+  if(id==='mPurchase')initPurchaseModal();
+  if(id==='mSale')initSaleModal();
+  document.getElementById(id).style.display='flex';
+}
+function hideModal(id){document.getElementById(id).style.display='none'}
+function bgClose(e,id){if(e.target.id===id)hideModal(id)}
+
+// ── SETTINGS ──────────────────────────────────────────────────
+function loadSettingsUI(){
+  const s=S.settings;
+  document.getElementById('sName').value=s.shopName||'';
+  document.getElementById('sRent').value=s.rent||'';
+  document.getElementById('sWages').value=s.wages||'';
+  document.getElementById('sOther').value=s.other||'';
+  document.getElementById('sTax').value=s.tax||'';
+  document.getElementById('sLoanTot').value=s.loanTot||'';
+  document.getElementById('sLoanMo').value=s.loanMo||'';
+  document.getElementById('sLoanPd').value=s.loanPd||'';
+  document.getElementById('sUnsell').value=s.unsell||20;
+  document.getElementById('sLowSt').value=s.lowSt||10;
+  const g=document.getElementById('sCats');g.innerHTML='';
+  for(let i=0;i<10;i++){
+    g.innerHTML+=`<div class="fg mb0"><label class="fl">Cat ${i+1}</label><input class="fi" id="sc${i}" value="${s.cats[i]||''}"></div>`;
+  }
+}
+function saveSettings(){
+  const s=S.settings;
+  s.shopName=document.getElementById('sName').value||'My Shop';
+  s.rent=+document.getElementById('sRent').value||0;
+  s.wages=+document.getElementById('sWages').value||0;
+  s.other=+document.getElementById('sOther').value||0;
+  s.tax=+document.getElementById('sTax').value||0;
+  s.loanTot=+document.getElementById('sLoanTot').value||0;
+  s.loanMo=+document.getElementById('sLoanMo').value||0;
+  s.loanPd=+document.getElementById('sLoanPd').value||0;
+  s.unsell=+document.getElementById('sUnsell').value||20;
+  s.lowSt=+document.getElementById('sLowSt').value||10;
+  s.cats=[];
+  for(let i=0;i<10;i++){const v=(document.getElementById('sc'+i)?.value||'').trim();if(v)s.cats.push(v);}
+  lsSave();toast('✅ Settings saved!');
+}
+
+// ── PURCHASES ─────────────────────────────────────────────────
+function initPurchaseModal(){
+  document.getElementById('pDate').value=toDay();
+  document.getElementById('pQty').value='';
+  document.getElementById('pCost').value='';
+  document.getElementById('pType').value='Single';
+  document.getElementById('pPrev').textContent='Fill in pieces and cost to see calculation preview.';
+  // fill category select
+  const sel=document.getElementById('pCat');
+  sel.innerHTML=S.settings.cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+function updPurchPrev(){
+  const qty=+document.getElementById('pQty').value;
+  const cost=+document.getElementById('pCost').value;
+  const typ=document.getElementById('pType').value;
+  const ur=S.settings.unsell/100;
+  if(!qty||!cost){document.getElementById('pPrev').textContent='Fill in pieces and cost to see calculation preview.';return}
+  const unsellPcs=typ==='Bale'?Math.round(qty*ur):0;
+  const sellable=qty-unsellPcs;
+  const cpp=sellable>0?(cost/sellable).toFixed(1):'-';
+  document.getElementById('pPrev').innerHTML=
+    `<strong>Sellable pieces:</strong> ${sellable}` +
+    (typ==='Bale'?`&nbsp;·&nbsp;<strong>Unsellable:</strong> ${unsellPcs}`:'')+
+    `&nbsp;·&nbsp;<strong>Cost per piece:</strong> KES ${cpp}`;
+}
+function savePurchase(){
+  const date=document.getElementById('pDate').value;
+  const cat=document.getElementById('pCat').value;
+  const typ=document.getElementById('pType').value;
+  const qty=+document.getElementById('pQty').value;
+  const cost=+document.getElementById('pCost').value;
+  if(!date||!cat||!qty||!cost){toast('⚠️ Please fill all fields',true);return}
+  const unsellPcs=typ==='Bale'?Math.round(qty*S.settings.unsell/100):0;
+  const sellable=qty-unsellPcs;
+  const cpp=sellable>0?cost/sellable:0;
+  S.purchases.push({id:uid(),date,cat,typ,qty,cost,unsellPcs,sellable,cpp});
+  lsSave();
+  hideModal('mPurchase');
+  renderPurchases();renderDashboard();renderStock();
+  toast('✅ Purchase saved!');
+}
+function renderPurchases(){
+  const tb=document.getElementById('tPurchases');
+  const em=document.getElementById('ePurchases');
+  const rows=[...S.purchases].sort((a,b)=>b.date.localeCompare(a.date));
+  if(!rows.length){tb.innerHTML='';em.style.display='block';return}
+  em.style.display='none';
+  tb.innerHTML=rows.map(p=>`<tr>
+    <td>${fmtD(p.date)}</td>
+    <td><span class="badge bg">${p.cat}</span></td>
+    <td><span class="badge ${p.typ==='Bale'?'bb':'bo'}">${p.typ}</span></td>
+    <td>${p.qty}</td><td>${p.sellable}</td>
+    <td>${fmtN(p.cost)}</td><td>${fmtN(p.cpp)}</td>
+    <td><button class="btn bd bsm" onclick="delPurchase('${p.id}')">✕</button></td>
+  </tr>`).join('');
+}
+function delPurchase(id){
+  S.purchases=S.purchases.filter(p=>p.id!==id);
+  lsSave();renderPurchases();renderDashboard();renderStock();toast('🗑️ Deleted');
+}
+
+// ── SALES ─────────────────────────────────────────────────────
+let sItemCount=1;
+function initSaleModal(){
+  document.getElementById('sDate').value=toDay();
+  document.getElementById('sType').value='B2C';
+  document.getElementById('sRev').value='';
+  document.getElementById('sNotes').value='';
+  sItemCount=1;
+  renderSaleItems();
+}
+function renderSaleItems(){
+  const opts=S.settings.cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  let h='';
+  for(let i=0;i<sItemCount;i++){
+    h+=`<div class="brow">
+      <select class="fs" id="siC${i}">${opts}</select>
+      <input class="fi" id="siQ${i}" type="number" placeholder="Qty" min="1">
+      <button class="bdel" onclick="remSaleItem(${i})">✕</button>
+    </div>`;
+  }
+  document.getElementById('sItems').innerHTML=h;
+}
+function addSaleItem(){
+  if(sItemCount>=6){toast('Max 6 categories per sale');return}
+  sItemCount++;renderSaleItems();
+}
+function remSaleItem(i){
+  // collect current values, remove row i, rebuild
+  const vals=[];
+  for(let j=0;j<sItemCount;j++){
+    const c=document.getElementById('siC'+j)?.value;
+    const q=document.getElementById('siQ'+j)?.value;
+    if(j!==i)vals.push({c,q});
+  }
+  sItemCount=Math.max(1,vals.length);
+  const opts=S.settings.cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  let h='';
+  for(let j=0;j<sItemCount;j++){
+    h+=`<div class="brow">
+      <select class="fs" id="siC${j}">${opts}</select>
+      <input class="fi" id="siQ${j}" type="number" placeholder="Qty" min="1" value="${vals[j]?.q||''}">
+      <button class="bdel" onclick="remSaleItem(${j})">✕</button>
+    </div>`;
+  }
+  document.getElementById('sItems').innerHTML=h;
+  // restore cat selects
+  vals.forEach((v,j)=>{const sel=document.getElementById('siC'+j);if(sel&&v.c)sel.value=v.c;});
+}
+function saveSale(){
+  const date=document.getElementById('sDate').value;
+  const typ=document.getElementById('sType').value;
+  const rev=+document.getElementById('sRev').value;
+  const notes=document.getElementById('sNotes').value;
+  if(!date||!rev){toast('⚠️ Please fill in date and revenue',true);return}
+  const items=[];
+  for(let i=0;i<sItemCount;i++){
+    const c=document.getElementById('siC'+i)?.value;
+    const q=+document.getElementById('siQ'+i)?.value;
+    if(c&&q>0)items.push({cat:c,qty:q});
+  }
+  if(!items.length){toast('⚠️ Add at least one item with quantity',true);return}
+  S.sales.push({id:uid(),date,typ,items,rev,notes});
+  lsSave();
+  hideModal('mSale');
+  renderSales();renderDashboard();renderStock();
+  toast('✅ Sale saved!');
+}
+function renderSales(){
+  const tb=document.getElementById('tSales');
+  const em=document.getElementById('eSales');
+  const rows=[...S.sales].sort((a,b)=>b.date.localeCompare(a.date));
+  if(!rows.length){tb.innerHTML='';em.style.display='block';return}
+  em.style.display='none';
+  tb.innerHTML=rows.map(s=>`<tr>
+    <td>${fmtD(s.date)}</td>
+    <td><span class="badge ${s.typ==='B2C'?'bg':'bb'}">${s.typ}</span></td>
+    <td style="font-size:.82rem">${s.items.map(i=>`${i.qty}× ${i.cat}`).join(', ')}</td>
+    <td><strong>${fmtN(s.rev)}</strong></td>
+    <td><button class="btn bd bsm" onclick="delSale('${s.id}')">✕</button></td>
+  </tr>`).join('');
+}
+function delSale(id){
+  S.sales=S.sales.filter(s=>s.id!==id);
+  lsSave();renderSales();renderDashboard();renderStock();toast('🗑️ Deleted');
+}
+
+// ── STOCK ─────────────────────────────────────────────────────
+function stockData(){
+  return S.settings.cats.map(cat=>{
+    const purs=S.purchases.filter(p=>p.cat===cat);
+    const bought=purs.reduce((s,p)=>s+p.sellable,0);
+    const sold=S.sales.reduce((s,sale)=>s+sale.items.filter(i=>i.cat===cat).reduce((ss,i)=>ss+i.qty,0),0);
+    const inStock=Math.max(0,bought-sold);
+    const totCost=purs.reduce((s,p)=>s+p.cost,0);
+    const totSell=purs.reduce((s,p)=>s+p.sellable,0);
+    const avgCpp=totSell>0?totCost/totSell:0;
+    return{cat,inStock,value:inStock*avgCpp};
+  });
+}
+function renderStock(){
+  const data=stockData();
+  const al=S.settings.lowSt;
+  const mx=Math.max(...data.map(d=>d.inStock),1);
+  document.getElementById('stockList').innerHTML=data.map(d=>{
+    const pct=Math.round(d.inStock/mx*100);
+    const cls=d.inStock===0?'out':d.inStock<=al?'low':'ok';
+    const bcls=d.inStock===0?'br':d.inStock<=al?'bo':'bg';
+    const lbl=d.inStock===0?'OUT':d.inStock<=al?'LOW':'OK';
+    return`<div class="srow">
+      <div class="sname">${d.cat}</div>
+      <div class="sbwrap"><div class="sbar ${cls}" style="width:${pct}%"></div></div>
+      <div class="sqty">${d.inStock}</div>
+      <span class="badge ${bcls}">${lbl}</span>
+    </div>`;
+  }).join('');
+  const tot=data.reduce((s,d)=>s+d.inStock,0);
+  const val=data.reduce((s,d)=>s+d.value,0);
+  document.getElementById('stockTot').textContent=tot+' pcs';
+  document.getElementById('stockVal').textContent=fmtN(val);
+}
+
+// ── FINANCE ───────────────────────────────────────────────────
+let selMo=new Date().getMonth(), selYr=new Date().getFullYear();
+function renderFinance(){
+  const bar=document.getElementById('mBar');
+  bar.innerHTML=MONTHS.map((m,i)=>`<button class="mchip${i===selMo?' on':''}" onclick="selMonth(${i})">${m} ${selYr}</button>`).join('');
+  const s=S.settings;
+  const rev=S.sales.filter(x=>mMatch(x.date)).reduce((s,x)=>s+x.rev,0);
+  const cogs=S.purchases.filter(x=>mMatch(x.date)).reduce((s,x)=>s+x.cost,0);
+  const gp=rev-cogs;
+  const fixd=s.rent+s.wages+s.other+s.tax/12+s.loanMo;
+  const net=gp-fixd;
+  const lrem=Math.max(0,s.loanTot-s.loanPd*s.loanMo);
+  const lpct=s.loanTot>0?Math.min(100,s.loanPd*s.loanMo/s.loanTot*100):0;
+  document.getElementById('finBody').innerHTML=`
+    <div class="pdraw" style="margin-bottom:16px">
+      <div class="plabel">💰 Money for personal use — ${MLONG[selMo]} ${selYr}</div>
+      <div class="pamount" style="color:${net>=0?'var(--gold)':'#ff6b6b'}">${fmtKES(net)}</div>
+      <div class="psub">${net>=0?'✅ Profitable month!':'⚠️ Costs exceed revenue this month'}</div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Revenue &amp; Stock Cost</div>
+      <div class="fline"><span class="flab">💰 Total Sales Revenue</span><span class="fval tg">${fmtKES(rev)}</span></div>
+      <div class="fline fcost"><span class="flab">📦 Stock Purchased (Cost)</span><span class="fval">–${fmtKES(cogs)}</span></div>
+      <div class="fline ftot"><span class="flab">GROSS PROFIT</span><span class="fval">${fmtKES(gp)}</span></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Monthly Costs</div>
+      <div class="fline fcost"><span class="flab">🏠 Rent</span><span class="fval">–${fmtKES(s.rent)}</span></div>
+      <div class="fline fcost"><span class="flab">👤 Wages</span><span class="fval">–${fmtKES(s.wages)}</span></div>
+      <div class="fline fcost"><span class="flab">📦 Other Costs</span><span class="fval">–${fmtKES(s.other)}</span></div>
+      <div class="fline fcost"><span class="flab">🏛️ Tax (monthly share)</span><span class="fval">–${fmtKES(s.tax/12)}</span></div>
+      <div class="fline fcost"><span class="flab">🏦 Loan Repayment</span><span class="fval">–${fmtKES(s.loanMo)}</span></div>
+      <div class="fline ftot"><span class="flab">TOTAL COSTS</span><span class="fval tr">${fmtKES(fixd)}</span></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">🏦 Loan Status</div>
+      <div class="fline"><span class="flab">Original loan</span><span class="fval">${fmtKES(s.loanTot)}</span></div>
+      <div class="fline"><span class="flab">Months paid</span><span class="fval">${s.loanPd}</span></div>
+      <div class="fline"><span class="flab">Total repaid</span><span class="fval">${fmtKES(s.loanPd*s.loanMo)}</span></div>
+      <div class="lprog"><div class="lbar" style="width:${lpct}%"></div></div>
+      <div class="fline ftot"><span class="flab">REMAINING BALANCE</span><span class="fval" style="color:var(--orange)">${fmtKES(lrem)}</span></div>
+    </div>`;
+}
+function selMonth(m){selMo=m;renderFinance()}
+function mMatch(dateStr){
+  const d=new Date(dateStr);
+  return d.getMonth()===selMo&&d.getFullYear()===selYr;
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+function renderDashboard(){
+  const now=new Date();
+  const mo=now.getMonth(),yr=now.getFullYear();
+  const s=S.settings;
+  const rev=S.sales.filter(x=>{const d=new Date(x.date);return d.getMonth()===mo&&d.getFullYear()===yr}).reduce((s,x)=>s+x.rev,0);
+  const cogs=S.purchases.filter(x=>{const d=new Date(x.date);return d.getMonth()===mo&&d.getFullYear()===yr}).reduce((s,x)=>s+x.cost,0);
+  const fixd=s.rent+s.wages+s.other+s.tax/12+s.loanMo;
+  const net=rev-cogs-fixd;
+  const lrem=Math.max(0,s.loanTot-s.loanPd*s.loanMo);
+  document.getElementById('dNet').textContent=fmtKES(net);
+  document.getElementById('dNet').style.color=net>=0?'var(--gold)':'#ff6b6b';
+  document.getElementById('dMonth').textContent=MLONG[mo]+' '+yr;
+  document.getElementById('dRev').textContent=fmtKES(rev);
+  document.getElementById('dCosts').textContent=fmtKES(fixd+cogs);
+  document.getElementById('dLoan').textContent=fmtKES(lrem);
+  const sd=stockData();
+  document.getElementById('dStock').textContent=sd.reduce((s,d)=>s+d.inStock,0)+' pcs';
+  // top cat
+  const cs={};
+  S.sales.forEach(sale=>{
+    const d=new Date(sale.date);
+    if(d.getMonth()===mo&&d.getFullYear()===yr)
+      sale.items.forEach(i=>{cs[i.cat]=(cs[i.cat]||0)+i.qty});
+  });
+  const top=Object.entries(cs).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('dTop').textContent=top?top[0]:'No sales yet';
+  document.getElementById('dTopSub').textContent=top?top[1]+' pieces sold this month':'';
+  // alerts
+  const al=s.lowSt;
+  const alItems=sd.filter(d=>d.inStock<=al);
+  document.getElementById('dAlerts').innerHTML=alItems.length
+    ?alItems.map(d=>`<div class="srow"><div class="sname">${d.cat}</div><span class="badge ${d.inStock===0?'br':'bo'}">${d.inStock===0?'OUT OF STOCK':'LOW: '+d.inStock+' pcs'}</span></div>`).join('')
+    :'<p style="font-size:.85rem;color:var(--gr4)">All categories well stocked ✅</p>';
+  // recent
+  const rec=[...S.sales].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+  document.getElementById('dRecent').innerHTML=rec.length
+    ?rec.map(s=>`<div class="fline"><span class="flab">${fmtD(s.date)} · <span class="badge ${s.typ==='B2C'?'bg':'bb'}">${s.typ}</span> ${s.items.map(i=>i.qty+'× '+i.cat).join(', ')}</span><span class="fval tg">${fmtKES(s.rev)}</span></div>`).join('')
+    :'<p style="font-size:.85rem;color:var(--gr4)">No sales yet.</p>';
+}
+
+// ── BACKUP / RESTORE ──────────────────────────────────────────
+function exportData(){
+  const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(b);
+  a.download='mitumba-backup-'+toDay()+'.json';
+  a.click();
+  toast('💾 Backup downloaded! Upload to Google Drive to keep it safe.');
+}
+function importData(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{try{S=JSON.parse(ev.target.result);lsSave();initApp();toast('✅ Data restored!')}catch{toast('❌ Invalid backup file',true)}};
+  r.readAsText(f);
+}
+
+// ── UTILS ─────────────────────────────────────────────────────
+function uid(){return Math.random().toString(36).substr(2,9)}
+function toDay(){return new Date().toISOString().split('T')[0]}
+function fmtD(d){if(!d)return'';const[y,m,day]=d.split('-');return`${day}/${m}/${y}`}
+function fmtN(n){return Math.round(n).toLocaleString()}
+function fmtKES(n){return'KES '+Math.round(n).toLocaleString()}
+let _toastT=null;
+function toast(msg,err){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.background=err?'var(--red)':'var(--g8)';
+  t.classList.add('on');
+  if(_toastT)clearTimeout(_toastT);
+  _toastT=setTimeout(()=>t.classList.remove('on'),2800);
+}
+</script>
 </body>
 </html>
