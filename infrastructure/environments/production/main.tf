@@ -25,17 +25,17 @@ terraform {
     }
   }
 
-  # ── Optional: remote state backend (recommended for teams) ───────────────
-  # Uncomment and fill in to store state in S3 instead of locally.
-  # Create the bucket and DynamoDB table manually (or via a separate bootstrap
-  # workspace) before enabling this.
+  # ── S3 remote backend ─────────────────────────────────────────────────────
+  # Fill in bucket and dynamodb_table from `terraform output` in
+  # infrastructure/bootstrap/ then run: terraform init
+  # Terraform will ask to migrate existing local state — answer yes.
   #
   # backend "s3" {
-  #   bucket         = "your-terraform-state-bucket"
+  #   bucket         = "REPLACE_WITH_bootstrap_output_bucket_name"
   #   key            = "mitumba/production/terraform.tfstate"
-  #   region         = "us-east-1"
+  #   region         = "us-east-1"           # must match bootstrap region
   #   encrypt        = true
-  #   dynamodb_table = "terraform-state-lock"
+  #   dynamodb_table = "mitumba-tfstate-lock" # from bootstrap output
   # }
 }
 
