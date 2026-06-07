@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% load static %}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Mitumba Shop Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+{# Pass Django context to JavaScript #}
+<script>
+  window.MITUMBA = {
+    csrfToken:     "{{ csrf_token }}",
+    userEmail:     "{{ user_email }}",
+    cognitoDomain: "{{ cognito_domain }}",
+    appClientId:   "{{ app_client_id }}",
+    logoutUrl:     "/auth/logout/"
+  };
+</script>
+</head>
+<body>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="htitle">mitumba<span>.</span></div>
+    <div class="hbtns">
+      <span class="ibtn" id="userEmail">{{ user_email }}</span>
+      <button class="ibtn" onclick="exportData()">💾 Backup</button>
+      <a class="ibtn" href="/auth/logout/">🚪 Logout</a>
+    </div>
+  </header>
+
+  <nav>
+    <button class="ntab on"  onclick="nav('dashboard',this)">📊 Dashboard</button>
+    <button class="ntab"     onclick="nav('purchases',this)">📦 Purchases</button>
+    <button class="ntab"     onclick="nav('sales',this)">💰 Sales</button>
+    <button class="ntab"     onclick="nav('finance',this)">📈 Finance</button>
+    <button class="ntab"     onclick="nav('stock',this)">🏪 Stock</button>
+    <button class="ntab"     onclick="nav('settings',this)">⚙️ Settings</button>
+  </nav>
+
+  <main>
+
+    <!-- DASHBOARD -->
+    <div class="pg on" id="pg-dashboard">
+      <div class="pdraw">
+        <div class="plabel">💰 Money for personal use this month</div>
+        <div class="pamount" id="dNet">KES —</div>
+        <div class="psub" id="dMonth">Loading…</div>
+      </div>
+      <div class="sgrid">
+        <div class="sbox">     <div class="slabel">Revenue this month</div><div class="sval" id="dRev">—</div></div>
+        <div class="sbox red"> <div class="slabel">Total costs</div>       <div class="sval red" id="dCosts">—</div></div>
+        <div class="sbox gold"><div class="slabel">Items in stock</div>    <div class="sval gold" id="dStock">—</div></div>
+        <div class="sbox ora"> <div class="slabel">Loan remaining</div>    <div class="sval" id="dLoan">—</div></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">🏆 Top selling category this month</div>
+        <div id="dTop" class="fw7 tg" style="font-size:1.1rem">—</div>
+        <div id="dTopSub" style="font-size:.82rem;color:var(--gr4);margin-top:4px"></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">⚠️ Low stock alerts</div>
+        <div id="dAlerts"><p style="font-size:.85rem;color:var(--gr4)">Loading…</p></div>
+      </div>
+      <div class="card mb0">
+        <div class="ctitle">🕐 Recent sales</div>
+        <div id="dRecent"><p style="font-size:.85rem;color:var(--gr4)">Loading…</p></div>
+      </div>
+    </div>
+
+    <!-- PURCHASES -->
+    <div class="pg" id="pg-purchases">
+      <div class="fb" style="margin-bottom:16px">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;color:var(--g8)">Purchase Log</div>
+        <button class="btn bp bsm" onclick="showModal('mPurchase')">+ Add Purchase</button>
+      </div>
+      <div class="card">
+        <div class="twrap">
+          <table>
+            <thead><tr><th>Date</th><th>Category</th><th>Type</th><th>Pieces</th><th>Sellable</th><th>Cost (KES)</th><th>Cost/pc</th><th></th></tr></thead>
+            <tbody id="tPurchases"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="ePurchases" style="display:none"><div class="ei">📦</div><p>No purchases yet. Add your first stock!</p></div>
+      </div>
+    </div>
+
+    <!-- SALES -->
+    <div class="pg" id="pg-sales">
+      <div class="fb" style="margin-bottom:16px">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;color:var(--g8)">Sales Log</div>
+        <button class="btn bp bsm" onclick="showModal('mSale')">+ Add Sale</button>
+      </div>
+      <div class="card">
+        <div id="salesList"></div>
+        <div class="empty" id="eSales" style="display:none"><div class="ei">💰</div><p>No sales yet. Record your first sale!</p></div>
+      </div>
+    </div>
+
+    <!-- FINANCE -->
+    <div class="pg" id="pg-finance">
+      <div class="mbar" id="mBar"></div>
+      <div id="finBody"></div>
+    </div>
+
+    <!-- STOCK -->
+    <div class="pg" id="pg-stock">
+      <div class="card">
+        <div class="ctitle">🏪 Current Stock Levels</div>
+        <div id="stockList"></div>
+      </div>
+      <div class="sgrid">
+        <div class="sbox">     <div class="slabel">Total pieces in stock</div><div class="sval" id="stockTot">—</div></div>
+        <div class="sbox gold"><div class="slabel">Stock value (KES)</div>    <div class="sval gold" id="stockVal">—</div></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="pg" id="pg-settings">
+      <div class="card">
+        <div style="margin-bottom:20px">
+          <div class="stitle">🏪 Shop Info</div>
+          <div class="fg"><label class="fl">Shop Name</label><input class="fi" id="sName" placeholder="My Mitumba Shop"></div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div class="stitle">👗 Product Categories (up to 10)</div>
+          <div class="cgrid" id="sCats"></div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div class="stitle">💸 Monthly Fixed Costs (KES)</div>
+          <div class="frow">
+            <div class="fg"><label class="fl">Rent</label>  <input class="fi" id="sRent"  type="number" placeholder="15000"></div>
+            <div class="fg"><label class="fl">Wages</label> <input class="fi" id="sWages" type="number" placeholder="8000"></div>
+          </div>
+          <div class="frow">
+            <div class="fg"><label class="fl">Other Costs</label>            <input class="fi" id="sOther" type="number" placeholder="3000"></div>
+            <div class="fg"><label class="fl">Annual Tax (KES/year)</label>  <input class="fi" id="sTax"   type="number" placeholder="12000"></div>
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div class="stitle">🏦 Loan Details</div>
+          <div class="frow">
+            <div class="fg"><label class="fl">Total Borrowed</label>   <input class="fi" id="sLoanTot" type="number" placeholder="100000"></div>
+            <div class="fg"><label class="fl">Monthly Repayment</label><input class="fi" id="sLoanMo"  type="number" placeholder="5000"></div>
+          </div>
+          <div class="fg"><label class="fl">Months Already Paid</label><input class="fi" id="sLoanPd" type="number" placeholder="0"></div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div class="stitle">📦 Bale Settings</div>
+          <div class="fg"><label class="fl">Unsellable Rate (%)</label><input class="fi" id="sUnsell" type="number" placeholder="20" min="0" max="100"><div class="fhint">Damaged / unusable pieces per bale. Default: 20%</div></div>
+        </div>
+        <div style="margin-bottom:24px">
+          <div class="stitle">⚠️ Low Stock Alert (pieces)</div>
+          <div class="fg"><input class="fi" id="sLowSt" type="number" placeholder="10"><div class="fhint">Show warning when any category falls below this number</div></div>
+        </div>
+        <button class="btn bp bfull" onclick="saveSettings()">💾 Save Settings</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL: PURCHASE -->
+<div class="moverlay" id="mPurchase" style="display:none" onclick="bgClose(event,'mPurchase')">
+  <div class="modal">
+    <div class="mtitle">📦 Add Purchase <button class="mclose" onclick="hideModal('mPurchase')">✕</button></div>
+    <div class="fg"><label class="fl">Date</label><input class="fi" id="pDate" type="date"></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Category</label><select class="fs" id="pCat"></select></div>
+      <div class="fg"><label class="fl">Purchase Type</label>
+        <select class="fs" id="pType" onchange="updPurchPrev()">
+          <option value="Single">Single pieces</option>
+          <option value="Bale">Bulk bale</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Total Pieces</label><input class="fi" id="pQty"  type="number" placeholder="e.g. 300" min="1"  oninput="updPurchPrev()"></div>
+      <div class="fg"><label class="fl">Total Cost (KES)</label><input class="fi" id="pCost" type="number" placeholder="e.g. 9000" min="0" oninput="updPurchPrev()"></div>
+    </div>
+    <div class="preview" id="pPrev">Fill in pieces and cost to see calculation preview.</div>
+    <button class="btn bp bfull" onclick="savePurchase()">Save Purchase</button>
+  </div>
+</div>
+
+<!-- MODAL: SALE -->
+<div class="moverlay" id="mSale" style="display:none" onclick="bgClose(event,'mSale')">
+  <div class="modal">
+    <div class="mtitle">💰 Add Sale <button class="mclose" onclick="hideModal('mSale')">✕</button></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Date</label><input class="fi" id="sDate" type="date"></div>
+      <div class="fg"><label class="fl">Sale Type</label>
+        <select class="fs" id="sType">
+          <option value="B2C">B2C – Single customer</option>
+          <option value="B2B">B2B – Bundle to trader</option>
+        </select>
+      </div>
+    </div>
+    <div><label class="fl" style="margin-bottom:8px">Items Sold:</label></div>
+    <div id="sItems"></div>
+    <button class="badd" onclick="addSaleItem()">+ Add another category</button>
+    <div class="fg"><label class="fl">Total Revenue (KES)</label><input class="fi" id="sRev"   type="number" placeholder="e.g. 4200" min="0"></div>
+    <div class="fg"><label class="fl">Notes (optional)</label>   <input class="fi" id="sNotes" placeholder="e.g. Regular customer, Gikomba trader"></div>
+    <button class="btn bp bfull" onclick="saveSale()">Save Sale</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>

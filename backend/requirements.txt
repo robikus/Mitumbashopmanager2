@@ -1,0 +1,25 @@
+# Core Django
+django==4.2.*
+djangorestframework==3.14.*
+
+# Database
+psycopg2-binary       # PostgreSQL adapter
+dj-database-url       # Parse DATABASE_URL env var
+
+# AWS Cognito JWT validation
+python-jose[cryptography]
+
+# HTTP calls (token exchange with Cognito)
+requests
+
+# WSGI server (production)
+gunicorn
+
+# CORS headers
+django-cors-headers
+
+# Serve static files efficiently in production
+whitenoise
+
+# Load .env files
+python-dotenv

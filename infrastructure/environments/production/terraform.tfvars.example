@@ -1,0 +1,48 @@
+##############################################################################
+# terraform.tfvars.example
+#
+# Copy this file to terraform.tfvars and fill in your values.
+# terraform.tfvars is gitignored — never commit secrets.
+#
+# To deploy: terraform init && terraform plan && terraform apply
+##############################################################################
+
+# ── General ───────────────────────────────────────────────────────────────────
+project_name = "mitumba"
+aws_region   = "us-east-1"
+owner_email  = "you@example.com"
+
+# ── Networking ────────────────────────────────────────────────────────────────
+vpc_cidr           = "10.0.0.0/16"
+public_subnet_cidr = "10.0.1.0/24"
+
+# IMPORTANT: Replace with your own IP to restrict SSH access
+# Find your IP: curl -s https://checkip.amazonaws.com
+ssh_allowed_cidrs = ["YOUR_IP/32"]
+
+# ── Compute ───────────────────────────────────────────────────────────────────
+instance_type = "t2.micro"  # free tier
+
+# Paste the content of your ~/.ssh/id_rsa.pub (or id_ed25519.pub) here
+ssh_public_key = "ssh-ed25519 AAAA... your-email@example.com"
+
+# Your app's domain name — point the DNS A record to server_ip after deploy
+app_domain = "shop.example.com"
+
+# Generate with: python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+django_secret_key = "your-very-long-random-django-secret-key-here"
+
+# ── Database ──────────────────────────────────────────────────────────────────
+db_name     = "mitumba_db"
+db_user     = "mitumba_user"
+db_password = "CHANGE_ME_use_a_strong_random_password_here_min20chars"
+
+# ── Cognito ───────────────────────────────────────────────────────────────────
+# Must be globally unique across all AWS accounts
+cognito_domain_prefix = "mitumba-shop-yourname"
+
+# Extra callback URLs for local development (remove for prod-only deploy)
+cognito_extra_callback_urls = ["http://localhost:8000/auth/callback/"]
+
+# ── IAM ───────────────────────────────────────────────────────────────────────
+create_admin_user = true
