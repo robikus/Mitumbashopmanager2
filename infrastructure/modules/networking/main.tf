@@ -78,7 +78,7 @@ resource "aws_security_group" "web" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "SSH — restrict to your IP in terraform.tfvars"
+    description = "SSH - restrict to your IP in terraform.tfvars"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
