@@ -32,6 +32,9 @@ infrastructure/environments/production/terraform.tfvars
 *.tfplan
 terraform.tfvars
 crash.log
+# Exception: bootstrap state has no secrets and CAN be committed to a private repo
+# Remove the next line if you want to track it in git
+infrastructure/bootstrap/terraform.tfstate
 
 # OS
 .DS_Store
