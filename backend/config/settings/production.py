@@ -1,15 +1,18 @@
 """
 Production settings — loaded on the EC2 server.
-Reads all secrets from /opt/mitumba/.env via python-dotenv.
+Reads all secrets from a .env file in the repo root via python-dotenv.
 """
 
 import os
+from pathlib import Path
+
 import dj_database_url
 from dotenv import load_dotenv
-from .base import *  # noqa: F401, F403
 
-# Load .env from the parent of the backend directory
-load_dotenv(BASE_DIR.parent / ".env")  # noqa: F405
+# Load .env before importing base so os.environ is populated when base.py runs
+load_dotenv(Path(__file__).resolve().parent.parent.parent.parent / ".env")
+
+from .base import *  # noqa: F401, F403, E402
 
 DEBUG = False
 

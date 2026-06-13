@@ -338,6 +338,94 @@ No module code changes are needed — all account-specific values are in
 | Data transfer | 1 GB/month out | $0.09/GB |
 | **Total (free tier)** | **~$0** | **~$10/month** |
 
+## Deploying the Django app
+
+### Step 1 — Clone the repository on the server
+
+SSH into the server, then clone the repo:
+
+```bash
+ssh -i ~/.ssh/id_ed25519 ubuntu@<server-ip>
+
+# Option A: HTTPS (public repo or with personal access token)
+git clone https://github.com/<your-username>/Mitumbashopmanager2.git
+
+# Option B: SSH (recommended — generate a key on the server and add it to GitHub)
+ssh-keygen -t ed25519 -C "polakovic.robert@gmail.com" -f ~/.ssh/id_ed25519
+cat ~/.ssh/id_ed25519.pub   # copy this and add to GitHub → Settings → SSH keys
+git clone git@github.com:<your-username>/Mitumbashopmanager2.git
+```
+
+The repo clones into `~/Mitumbashopmanager2`.
+
+---
+
+### Step 2 — Set up Python virtual environment
+
+Ubuntu ships without the venv module — install it first:
+
+```bash
+sudo apt install python3.10-venv -y
+```
+
+Then create the virtual environment and install dependencies:
+
+```bash
+cd ~/Mitumbashopmanager2/backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+You must activate the venv (`source venv/bin/activate`) every time you open a new SSH session before running any Django commands. Your prompt will show `(venv)` when it is active.
+
+---
+
+### Step 3 — Run Django migrations
+
+Migrations create all the database tables in `mitumba_db`:
+
+```bash
+cd ~/Mitumbashopmanager2/backend
+source venv/bin/activate
+python manage.py migrate --settings=config.settings.production
+```
+
+After this you will see all tables in pgAdmin under `mitumba_db` → Schemas → public → Tables.
+
+---
+
+### Step 4 — Create a Django superuser
+
+```bash
+python manage.py createsuperuser --settings=config.settings.production
+```
+
+---
+
+### Step 5 — Collect static files
+
+```bash
+python manage.py collectstatic --settings=config.settings.production
+```
+
+---
+
+### Updating the app after a code change
+
+```bash
+ssh -i ~/.ssh/id_ed25519 ubuntu@<server-ip>
+cd ~/Mitumbashopmanager2
+git pull
+cd backend
+source venv/bin/activate
+pip install -r requirements.txt        # only needed if dependencies changed
+python manage.py migrate --settings=config.settings.production
+sudo systemctl restart gunicorn        # restart the app server
+```
+
+---
+
 ## Destroying the environment
 
 ```bash
