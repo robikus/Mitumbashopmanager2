@@ -122,15 +122,9 @@ def callback(request):
 
 @require_GET
 def logout_view(request):
-    """Clear Django session and redirect to Cognito's logout endpoint."""
+    """Clear Django session and redirect to login."""
     logout(request)
-
-    params = {
-        "client_id":  settings.COGNITO_APP_CLIENT_ID,
-        "logout_uri": f"{settings.APP_DOMAIN}/auth/logged-out/",
-    }
-    url = f"{settings.COGNITO_DOMAIN}/logout?{urlencode(params)}"
-    return HttpResponseRedirect(url)
+    return redirect("/auth/login/")
 
 
 @require_GET
