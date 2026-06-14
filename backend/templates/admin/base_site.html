@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | Mitumba Admin{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+  <a href="{% url 'admin:index' %}">mitumba<span style="color:#e9c46a">.</span> admin</a>
+</h1>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/admin_override.css' %}">
+{% endblock %}
+
+{% block usertools %}
+{{ block.super }}
+<a id="mitumba-panel-link" href="/auth/admin/pending/">&#9881; Pending users</a>
+{% endblock %}

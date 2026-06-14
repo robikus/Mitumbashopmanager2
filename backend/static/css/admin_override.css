@@ -1,0 +1,71 @@
+/* Mitumba — Django admin colour override */
+:root {
+  --primary:    #1e4d35;
+  --secondary:  #2d6a4f;
+  --accent:     #e9c46a;
+  --header-bg:  #1e4d35;
+  --header-link:#e9c46a;
+  --breadcrumb-bg: #2d6a4f;
+  --darkened-bg: #1a3a2a;
+}
+
+/* Top header bar */
+#header { background: var(--header-bg); }
+#header a:link, #header a:visited { color: var(--header-link); }
+#branding h1, #branding h1 a:link, #branding h1 a:visited {
+  color: #fff;
+  font-family: sans-serif;
+}
+
+/* Breadcrumb */
+div.breadcrumbs { background: var(--breadcrumb-bg); }
+div.breadcrumbs a { color: #d8f3dc; }
+
+/* Sidebar nav links */
+#nav-sidebar .current-app .module__title,
+#nav-sidebar .current-app .model-name a {
+  color: var(--accent);
+}
+
+/* Module headers (grey boxes) */
+.module h2, .module caption, .inline-group h2 {
+  background: var(--primary);
+}
+
+/* Submit row buttons */
+.submit-row input[type=submit],
+.submit-row a.deletelink,
+input[type=submit].default {
+  background: #40916c;
+  border: none;
+}
+.submit-row input[type=submit]:hover,
+input[type=submit].default:hover {
+  background: #2d6a4f;
+}
+
+/* Action buttons */
+.button, input[type=submit], input[type=button], .submit-row input {
+  border-radius: 6px;
+}
+
+/* Selected row highlight */
+tr.selected { background: #d8f3dc; }
+
+/* Links */
+a:link, a:visited { color: #2d6a4f; }
+a:hover { color: #1e4d35; }
+
+/* Custom panel link in header */
+#mitumba-panel-link {
+  float: right;
+  margin-top: 8px;
+  margin-right: 12px;
+  background: rgba(255,255,255,.15);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: .82rem;
+  color: #fff !important;
+  text-decoration: none;
+}
+#mitumba-panel-link:hover { background: rgba(255,255,255,.25); }
