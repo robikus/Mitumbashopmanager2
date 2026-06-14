@@ -71,9 +71,10 @@ resource "aws_cognito_user_pool" "main" {
     }
   }
 
-  # ── Admin-created users can sign themselves in ────────────────────────────
+  # Only admins can create users — self-registration via hosted UI is disabled.
+  # New users apply at /auth/register/ and are approved manually.
   admin_create_user_config {
-    allow_admin_create_user_only = false
+    allow_admin_create_user_only = true
   }
 
   tags = merge(var.common_tags, {

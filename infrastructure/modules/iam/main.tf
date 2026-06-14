@@ -34,10 +34,10 @@ resource "aws_iam_role" "ec2_app" {
   tags = var.common_tags
 }
 
-# Minimal Cognito permissions — read pool configuration and verify tokens
+# Cognito permissions — token validation (read) + admin approval panel (write)
 resource "aws_iam_policy" "ec2_cognito" {
   name        = "${var.project_name}-ec2-cognito-policy"
-  description = "Allows EC2 to read Cognito user pool info (for token validation)"
+  description = "Allows EC2 to validate Cognito tokens and create approved users"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -50,6 +50,15 @@ resource "aws_iam_policy" "ec2_cognito" {
           "cognito-idp:DescribeUserPoolClient",
           "cognito-idp:GetUser",
           "cognito-idp:ListUsers",
+        ]
+        Resource = var.cognito_user_pool_arn != "" ? [var.cognito_user_pool_arn] : ["*"]
+      },
+      {
+        Sid    = "CognitoAdminCreateUser"
+        Effect = "Allow"
+        Action = [
+          "cognito-idp:AdminCreateUser",
+          "cognito-idp:AdminGetUser",
         ]
         Resource = var.cognito_user_pool_arn != "" ? [var.cognito_user_pool_arn] : ["*"]
       }

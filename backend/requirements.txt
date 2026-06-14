@@ -9,6 +9,9 @@ dj-database-url       # Parse DATABASE_URL env var
 # AWS Cognito JWT validation
 python-jose[cryptography]
 
+# AWS SDK — admin_create_user for the approval panel
+boto3
+
 # HTTP calls (token exchange with Cognito)
 requests
 

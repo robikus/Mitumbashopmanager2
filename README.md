@@ -9,9 +9,13 @@ and AWS — designed to run entirely on the AWS free tier.
 
 1. [Application summary](#1-application-summary)
 2. [Architecture](#2-architecture)
+   - [Request flow](#request-flow)
+   - [Authentication flow](#authentication-flow)
+   - [User registration flow](#user-registration-flow)
 3. [Infrastructure — Terraform](#3-infrastructure--terraform)
 4. [Backend — Django](#4-backend--django)
 5. [Administration](#5-administration)
+   - [Approving new users](#approving-new-users-admin-panel)
 
 ---
 
@@ -32,9 +36,19 @@ prototype with a fully dynamic system backed by a database.
 | Stock | Current stock levels per category |
 | Settings | Per-user shop configuration (shop name, unsellable rate, categories) |
 
-**Authentication:** Users log in via AWS Cognito (email + password). Each user
-has their own isolated data — their purchases, sales, and settings are not
-visible to other users.
+**Authentication and user onboarding:**
+
+1. A new user fills in the public registration form at `/auth/register/`
+   (name, email, phone number). Their request is stored in the database with
+   status *pending* — no Cognito account is created yet.
+2. The admin reviews pending requests at `/auth/admin/pending/` and confirms
+   payment. Clicking **Approve** creates the Cognito account and emails the
+   user a temporary password automatically.
+3. The user logs in via the Cognito hosted UI, resets their password on first
+   sign-in, and lands in the app.
+
+Each user has their own isolated data — purchases, sales, and settings are not
+visible to other users. Self-registration on the Cognito hosted UI is disabled.
 
 ---
 
@@ -68,24 +82,92 @@ and complexity low for a single-shop deployment.
 ```
 Browser
   │
-  ├── GET /              → Nginx → Gunicorn → Django (serves index.html SPA shell)
-  ├── GET /static/...    → Nginx serves files directly (no Django involved)
-  ├── GET /auth/login/   → Django → redirect to Cognito hosted UI
-  ├── GET /auth/callback/→ Django exchanges auth code for tokens, sets session
-  └── GET/POST /api/...  → Django REST Framework (requires session auth)
+  ├── GET /                    → Nginx → Gunicorn → Django (serves index.html SPA shell)
+  ├── GET /static/...          → Nginx serves files directly (no Django involved)
+  ├── GET /auth/login/         → Django → redirect to Cognito hosted UI
+  ├── GET /auth/callback/      → Django exchanges auth code for tokens, sets session
+  ├── GET/POST /auth/register/ → Public registration form (no login required)
+  ├── GET /auth/admin/pending/ → Admin approval panel (staff login required)
+  └── GET/POST /api/...        → Django REST Framework (requires session auth)
 ```
 
 ### Authentication flow
 
 ```
-1. User visits the app → Django detects no session → redirects to Cognito login page
-2. User logs in at Cognito hosted UI
-3. Cognito redirects back to /auth/callback/?code=...
-4. Django exchanges the code for tokens (POST to Cognito /oauth2/token)
-5. Django validates the JWT, creates/updates the User record in PostgreSQL
-6. Django sets a session cookie → user is logged in
-7. All subsequent API calls include the session cookie
+1. User visits http://localhost:8000
+         │
+         ▼
+2. Django sees no session → builds this URL and redirects:
+   https://mitumba-shop-yourname.auth.eu-central-1.amazoncognito.com/login
+   ?response_type=code
+   &client_id=1fabgguo8k5krsdpsc9b4pbfgp
+   &redirect_uri=http://localhost:8000/auth/callback/
+         │
+         ▼
+3. AWS serves the Cognito hosted login page (AWS servers, AWS HTML/CSS)
+   User types email + password
+         │
+         ▼
+4. Cognito verifies credentials
+   Generates a one-time authorization code
+   Redirects browser to:
+   http://localhost:8000/auth/callback/?code=abc123
+         │
+         ▼
+5. Django receives the code at /auth/callback/
+   Makes a server-to-server POST to Cognito:
+   POST https://...amazoncognito.com/oauth2/token
+   { code: abc123, client_id: ..., client_secret: ... }
+         │
+         ▼
+6. Cognito returns tokens (id_token, access_token, refresh_token)
+   Django validates the JWT signature
+   Creates/finds the User record in PostgreSQL
+   Sets a Django session cookie
+         │
+         ▼
+7. Browser is now logged in, redirected to /
+   All subsequent API calls include the session cookie automatically
 ```
+
+### User registration flow
+
+```
+1. New user visits /auth/register/
+   Fills in name, email, phone → submitted to Django
+         │
+         ▼
+2. Django saves a PendingUser record (status: pending)
+   Page shows "Application received — await email"
+         │
+         ▼
+3. Admin visits /auth/admin/pending/
+   Reviews the list, confirms payment out-of-band (phone, bank transfer, etc.)
+   Clicks Approve
+         │
+         ▼
+4. Django calls Cognito AdminCreateUser API (using EC2 IAM role — no keys needed)
+   Cognito creates the account + emails a temporary password to the user
+   PendingUser record updated to status: approved
+         │
+         ▼
+5. User receives the email, visits /auth/login/
+   Logs in with the temporary password
+   Cognito forces a password change on first sign-in
+```
+
+Self-registration via the Cognito hosted UI is disabled
+(`allow_admin_create_user_only = true`). Only the admin can create accounts.
+
+**Why Cognito's hosted UI:** AWS handles the login page, password hashing,
+brute-force protection, email verification, password reset, and MFA — all for
+free, without writing any of that code.
+
+**What you can and cannot control:**
+- The hosted UI page lives on AWS servers — you don't control its HTML structure
+- You can upload custom CSS to Cognito to restyle it (change colors, fonts)
+- For full design control, replace the hosted UI with a custom Django login form
+  that calls Cognito's API directly (more work, full flexibility)
 
 ### Technology stack
 
@@ -294,13 +376,16 @@ backend/
 │   ├── urls.py             # Root URL configuration
 │   └── wsgi.py             # Gunicorn entrypoint
 ├── apps/
-│   ├── authentication/     # Cognito OIDC login, UserProfile model, middleware
+│   ├── authentication/     # Cognito OIDC login, UserProfile, PendingUser models
 │   ├── shop_settings/      # Per-user shop config + product categories
 │   ├── purchases/          # Purchase records
 │   ├── sales/              # Sale records + line items
 │   ├── dashboard/          # Aggregated dashboard data
 │   └── finance/            # Monthly P&L + stock levels
-├── templates/index.html    # Single-page app HTML shell
+├── templates/
+│   ├── index.html          # Single-page app HTML shell (authenticated users)
+│   ├── register.html       # Public registration form
+│   └── admin_pending_users.html  # Admin approval panel
 ├── static/
 │   ├── css/style.css
 │   └── js/app.js
@@ -313,6 +398,7 @@ backend/
 |---|---|---|
 | `auth_user` | Django built-in | User accounts |
 | `auth_user_profile` | authentication | Cognito `sub` UUID + stored tokens |
+| `auth_pending_user` | authentication | Registration requests awaiting admin approval |
 | `shop_settings` | shop_settings | Per-user shop configuration |
 | `shop_product_category` | shop_settings | Up to 10 categories per user |
 | `purchase` | purchases | Stock acquisitions (denormalised for performance) |
@@ -390,7 +476,7 @@ CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://<server-ip>
 ```
 
 ```bash
-# Create database tables
+# Create database tables (authentication covers UserProfile + PendingUser)
 python manage.py makemigrations authentication shop_settings purchases sales finance \
   --settings=config.settings.production
 python manage.py migrate --settings=config.settings.production
@@ -548,17 +634,25 @@ sudo systemctl restart gunicorn     # after app code changes
 sudo systemctl restart nginx        # after Nginx config changes
 ```
 
-### Manage Cognito users (from your laptop)
+### Approving new users (admin panel)
+
+The preferred way to manage users is through the built-in admin panel:
+
+1. A new user submits their details at `http://localhost:8000/auth/register/`
+2. Log in to the app, then visit `http://localhost:8000/auth/admin/pending/`
+3. You will see a table of all requests with name, email, phone, and date
+4. After confirming payment, click **Approve**
+   - Django calls the Cognito API using the EC2 IAM role (no keys needed)
+   - Cognito creates the account and emails a temporary password to the user
+5. To decline a request, click **Reject** and optionally add an internal note
+
+> The user's first login forces a password change via Cognito.
+
+### Manage Cognito users (AWS CLI — advanced)
+
+Use the CLI only when bypassing the admin panel (e.g. resetting a locked account):
 
 ```bash
-# Create a user
-aws cognito-idp admin-create-user \
-  --user-pool-id eu-central-1_nrMzlxwlB \
-  --username user@example.com \
-  --user-attributes Name=email,Value=user@example.com Name=email_verified,Value=true \
-  --temporary-password 'Temp1234!' \
-  --region eu-central-1
-
 # Set a permanent password (use single quotes — ! breaks double quotes in zsh)
 aws cognito-idp admin-set-user-password \
   --user-pool-id eu-central-1_nrMzlxwlB \

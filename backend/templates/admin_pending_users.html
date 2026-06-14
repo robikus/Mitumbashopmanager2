@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% load static %}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Pending Users — Mitumba Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<style>
+  .status-pending  { background: #fff3cd; color: #856404; }
+  .status-approved { background: #d1e7dd; color: #0a3622; }
+  .status-rejected { background: #f8d7da; color: #842029; }
+  .reject-row { display: none; background: var(--gr1); padding: 10px 12px; }
+  .reject-row.open { display: table-row; }
+  .note-fi {
+    width: 100%; padding: 7px 10px; border: 1.5px solid var(--gr2);
+    border-radius: var(--rs); font-family: 'DM Sans', sans-serif;
+    font-size: .88rem; background: var(--w); color: var(--gr8); outline: none;
+  }
+  .note-fi:focus { border-color: var(--red); }
+  .msg { padding: 10px 14px; border-radius: var(--rs); margin-bottom: 14px;
+         font-size: .88rem; }
+  .msg-success { background: #d1e7dd; color: #0a3622; border: 1px solid #a3cfbb; }
+  .msg-warning { background: #fff3cd; color: #664d03; border: 1px solid #ffe69c; }
+  .msg-error   { background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+  .msg-info    { background: #cff4fc; color: #055160; border: 1px solid #9eeaf9; }
+  .empty-state { text-align: center; padding: 40px; color: var(--gr4); font-size: .9rem; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header>
+    <div class="htitle">mitumba<span>.</span></div>
+    <div class="hbtns">
+      <span class="ibtn">{{ request.user.email }}</span>
+      <a class="ibtn" href="/">&#8592; Back to app</a>
+      <a class="ibtn" href="/auth/logout/">&#128682; Logout</a>
+    </div>
+  </header>
+
+  <main style="max-width:900px">
+
+    <div style="margin-bottom:20px">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.3rem;
+                  color:var(--g8);margin-bottom:4px">
+        Pending registrations
+      </div>
+      <div style="font-size:.84rem;color:var(--gr6)">
+        Approve users after confirming payment. Approving creates their
+        Cognito account and emails them a temporary password.
+      </div>
+    </div>
+
+    {% for msg in messages %}
+      {% if msg.tags == 'success' %}
+        <div class="msg msg-success">{{ msg }}</div>
+      {% elif msg.tags == 'warning' %}
+        <div class="msg msg-warning">{{ msg }}</div>
+      {% elif msg.tags == 'error' %}
+        <div class="msg msg-error">{{ msg }}</div>
+      {% else %}
+        <div class="msg msg-info">{{ msg }}</div>
+      {% endif %}
+    {% endfor %}
+
+    <div class="card" style="padding:0;overflow:hidden">
+      {% if users %}
+      <div class="twrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Applied</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            <tr>
+              <td style="font-weight:500">{{ u.name }}</td>
+              <td>{{ u.email }}</td>
+              <td>{{ u.phone }}</td>
+              <td style="font-size:.8rem;color:var(--gr6)">
+                {{ u.created_at|date:"d M Y" }}
+              </td>
+              <td>
+                <span class="badge status-{{ u.status }}">
+                  {{ u.get_status_display }}
+                </span>
+              </td>
+              <td>
+                {% if u.status == 'pending' %}
+                <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                  <form method="post"
+                        action="/auth/admin/approve/{{ u.id }}/"
+                        style="display:inline"
+                        onsubmit="return confirm('Approve {{ u.name }} ({{ u.email }}) and send login credentials?')">
+                    {% csrf_token %}
+                    <button class="btn bp bsm">Approve</button>
+                  </form>
+                  <button
+                    class="btn bd bsm"
+                    onclick="toggleReject('{{ u.id }}')">
+                    Reject
+                  </button>
+                </div>
+                {% elif u.status == 'rejected' and u.admin_note %}
+                <span style="font-size:.78rem;color:var(--gr6)">
+                  {{ u.admin_note }}
+                </span>
+                {% else %}
+                  &mdash;
+                {% endif %}
+              </td>
+            </tr>
+            {% if u.status == 'pending' %}
+            <tr class="reject-row" id="reject-{{ u.id }}">
+              <td colspan="6">
+                <form method="post"
+                      action="/auth/admin/reject/{{ u.id }}/"
+                      style="display:flex;gap:8px;align-items:center">
+                  {% csrf_token %}
+                  <input
+                    class="note-fi"
+                    type="text"
+                    name="note"
+                    placeholder="Optional rejection note (not sent to user)"
+                  >
+                  <button class="btn bd bsm" style="white-space:nowrap">
+                    Confirm reject
+                  </button>
+                  <button
+                    type="button"
+                    class="btn bs bsm"
+                    onclick="toggleReject('{{ u.id }}')">
+                    Cancel
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <div class="empty-state">
+          No registration requests yet.
+        </div>
+      {% endif %}
+    </div>
+
+  </main>
+</div>
+
+<script>
+function toggleReject(id) {
+  var row = document.getElementById('reject-' + id);
+  row.classList.toggle('open');
+}
+</script>
+
+</body>
+</html>

@@ -1,12 +1,44 @@
 """
-UserProfile extends Django's built-in User with Cognito identity data.
+Authentication models.
 
-Each Django User is linked 1:1 to a Cognito identity via the `cognito_sub`
-field (the immutable UUID Cognito assigns each user at sign-up).
+UserProfile — extends Django's built-in User with Cognito identity data.
+PendingUser  — registration requests awaiting admin approval.
 """
 
 from django.contrib.auth.models import User
 from django.db import models
+
+
+class PendingUser(models.Model):
+    """
+    Stores access requests submitted via the public /auth/register/ page.
+    Admin reviews these and creates Cognito accounts for approved applicants.
+    """
+
+    class Status(models.TextChoices):
+        PENDING  = "pending",  "Pending"
+        APPROVED = "approved", "Approved"
+        REJECTED = "rejected", "Rejected"
+
+    name       = models.CharField(max_length=255)
+    email      = models.EmailField(unique=True)
+    phone      = models.CharField(max_length=30)
+    status     = models.CharField(
+        max_length=10,
+        choices=Status.choices,
+        default=Status.PENDING,
+        db_index=True,
+    )
+    admin_note = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "auth_pending_user"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.email} ({self.status})"
 
 
 class UserProfile(models.Model):

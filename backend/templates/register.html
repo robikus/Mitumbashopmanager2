@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% load static %}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Request Access — Mitumba Shop Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<style>
+  .auth-wrap {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--gr0);
+    padding: 24px 16px;
+  }
+  .auth-card {
+    background: var(--w);
+    border-radius: var(--r);
+    box-shadow: var(--shl);
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 420px;
+  }
+  .auth-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    color: var(--g8);
+    text-align: center;
+    margin-bottom: 6px;
+    letter-spacing: -.5px;
+  }
+  .auth-logo span { color: var(--gold); }
+  .auth-subtitle {
+    text-align: center;
+    color: var(--gr6);
+    font-size: .85rem;
+    margin-bottom: 28px;
+  }
+  .auth-divider {
+    border: none;
+    border-top: 1px solid var(--gr2);
+    margin: 20px 0;
+  }
+  .err-msg {
+    background: #fff5f5;
+    border: 1.5px solid #fca5a5;
+    border-radius: var(--rs);
+    padding: 8px 12px;
+    font-size: .82rem;
+    color: var(--red);
+    margin-top: 4px;
+  }
+  .success-icon {
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .success-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--g8);
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .success-text {
+    color: var(--gr6);
+    font-size: .88rem;
+    text-align: center;
+    line-height: 1.5;
+  }
+  .login-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: .83rem;
+    color: var(--gr6);
+  }
+  .login-link a {
+    color: var(--g6);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .login-link a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo">mitumba<span>.</span></div>
+    <div class="auth-subtitle">Shop Manager</div>
+
+    {% if submitted %}
+
+      <div class="success-icon">&#10003;</div>
+      <div class="success-title">Application received!</div>
+      <p class="success-text">
+        Thank you. Your access request has been submitted.<br>
+        The admin will review your application and you will receive a
+        temporary password by email once approved.
+      </p>
+      <hr class="auth-divider">
+      <div class="login-link">
+        Already have an account?
+        <a href="/auth/login/">Sign in</a>
+      </div>
+
+    {% else %}
+
+      <div class="ctitle" style="justify-content:center;margin-bottom:20px">
+        Request Access
+      </div>
+
+      <form method="post" action="/auth/register/" novalidate>
+        {% csrf_token %}
+
+        <div class="fg">
+          <label class="fl" for="name">Full name</label>
+          <input
+            class="fi"
+            type="text"
+            id="name"
+            name="name"
+            value="{{ name|default:'' }}"
+            placeholder="Jane Doe"
+            autocomplete="name"
+            required
+          >
+          {% if errors.name %}
+            <div class="err-msg">{{ errors.name }}</div>
+          {% endif %}
+        </div>
+
+        <div class="fg">
+          <label class="fl" for="email">Email address</label>
+          <input
+            class="fi"
+            type="email"
+            id="email"
+            name="email"
+            value="{{ email|default:'' }}"
+            placeholder="you@example.com"
+            autocomplete="email"
+            required
+          >
+          {% if errors.email %}
+            <div class="err-msg">{{ errors.email }}</div>
+          {% endif %}
+        </div>
+
+        <div class="fg">
+          <label class="fl" for="phone">Phone number</label>
+          <input
+            class="fi"
+            type="tel"
+            id="phone"
+            name="phone"
+            value="{{ phone|default:'' }}"
+            placeholder="+254 7XX XXX XXX"
+            autocomplete="tel"
+            required
+          >
+          <div class="fhint">Used to verify your payment — we will not spam you.</div>
+          {% if errors.phone %}
+            <div class="err-msg">{{ errors.phone }}</div>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn bp bfull" style="margin-top:8px">
+          Submit application
+        </button>
+      </form>
+
+      <hr class="auth-divider">
+      <div class="login-link">
+        Already have an account?
+        <a href="/auth/login/">Sign in</a>
+      </div>
+
+    {% endif %}
+  </div>
+</div>
+
+</body>
+</html>
