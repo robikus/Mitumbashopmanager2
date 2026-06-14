@@ -62,7 +62,17 @@ def _redirect_uri() -> str:
 
 @require_GET
 def login_redirect(request):
-    """Redirect the browser to the Cognito hosted login page."""
+    """
+    Show the login landing page with Sign-in and Request-access options.
+    Unauthenticated users land here before being sent to Cognito.
+    """
+    error = request.GET.get("error")
+    return render(request, "login.html", {"error": error})
+
+
+@require_GET
+def cognito_redirect(request):
+    """Redirect the browser directly to the Cognito hosted login page."""
     params = {
         "response_type": "code",
         "client_id": settings.COGNITO_APP_CLIENT_ID,

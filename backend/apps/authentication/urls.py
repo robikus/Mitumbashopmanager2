@@ -4,11 +4,12 @@ from . import views
 app_name = "authentication"
 
 urlpatterns = [
-    # OAuth2 / Cognito
-    path("login/",      views.login_redirect, name="login"),
-    path("callback/",   views.callback,       name="callback"),
-    path("logout/",     views.logout_view,    name="logout"),
-    path("logged-out/", views.logged_out,     name="logged_out"),
+    # Login landing page + OAuth2 / Cognito
+    path("login/",      views.login_redirect,  name="login"),
+    path("cognito/",    views.cognito_redirect, name="cognito_redirect"),
+    path("callback/",   views.callback,        name="callback"),
+    path("logout/",     views.logout_view,     name="logout"),
+    path("logged-out/", views.logged_out,      name="logged_out"),
 
     # Public registration (no auth required)
     path("register/", views.register, name="register"),

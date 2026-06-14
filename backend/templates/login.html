@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% load static %}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sign in — Mitumba Shop Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<style>
+  .auth-wrap {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--gr0);
+    padding: 24px 16px;
+  }
+  .auth-card {
+    background: var(--w);
+    border-radius: var(--r);
+    box-shadow: var(--shl);
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 380px;
+  }
+  .auth-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    color: var(--g8);
+    text-align: center;
+    margin-bottom: 6px;
+    letter-spacing: -.5px;
+  }
+  .auth-logo span { color: var(--gold); }
+  .auth-subtitle {
+    text-align: center;
+    color: var(--gr6);
+    font-size: .85rem;
+    margin-bottom: 32px;
+  }
+  .auth-divider {
+    border: none;
+    border-top: 1px solid var(--gr2);
+    margin: 20px 0;
+    text-align: center;
+    position: relative;
+  }
+  .auth-divider span {
+    background: var(--w);
+    padding: 0 10px;
+    font-size: .78rem;
+    color: var(--gr4);
+    position: relative;
+    top: -10px;
+  }
+  .register-link {
+    text-align: center;
+    font-size: .84rem;
+    color: var(--gr6);
+  }
+  .register-link a {
+    color: var(--g6);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .register-link a:hover { text-decoration: underline; }
+  .err-banner {
+    background: #fff5f5;
+    border: 1.5px solid #fca5a5;
+    border-radius: var(--rs);
+    padding: 10px 14px;
+    font-size: .83rem;
+    color: var(--red);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo">mitumba<span>.</span></div>
+    <div class="auth-subtitle">Shop Manager</div>
+
+    {% if error %}
+      <div class="err-banner">
+        Sign-in failed — please try again or contact the admin.
+      </div>
+    {% endif %}
+
+    <a href="/auth/cognito/" class="btn bp bfull" style="text-decoration:none;margin-bottom:4px">
+      Sign in
+    </a>
+
+    <hr class="auth-divider"><span>new here?</span>
+
+    <div class="register-link">
+      <a href="/auth/register/">Request access</a>
+      &nbsp;&mdash;&nbsp;
+      submit your details and the admin will activate your account after confirming payment.
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
