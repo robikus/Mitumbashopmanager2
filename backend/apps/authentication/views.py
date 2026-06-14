@@ -168,6 +168,7 @@ def spa_shell(request):
         "user_email": request.user.email,
         "cognito_domain": settings.COGNITO_DOMAIN,
         "app_client_id": settings.COGNITO_APP_CLIENT_ID,
+        "is_staff": request.user.is_staff,
     })
 
 

@@ -26,8 +26,8 @@
   <header>
     <div class="htitle">mitumba<span>.</span></div>
     <div class="hbtns">
-      <span class="ibtn" id="userEmail">{{ user_email }}</span>
-      <button class="ibtn" onclick="exportData()">💾 Backup</button>
+      <span class="ibtn" id="userEmail">{{ user_email }}{% if is_staff %} <span style="font-size:.7rem;background:var(--gold);color:var(--g9);border-radius:4px;padding:1px 5px;font-weight:700">admin</span>{% endif %}</span>
+      {% if is_staff %}<a class="ibtn" href="/auth/admin/pending/">&#9881; Users</a>{% endif %}
       <a class="ibtn" href="/auth/logout/">🚪 Logout</a>
     </div>
   </header>
