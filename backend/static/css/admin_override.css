@@ -1,161 +1,49 @@
 /* Mitumba — Django admin style override */
 
-/* ── Top header (green) ───────────────────────────────────────────────────── */
-#header {
-  background: #1e4d35;
-  color: #fff;
-}
-#header a:link,
-#header a:visited {
-  color: #e9c46a;
-}
-#branding h1,
-#branding h1 a:link,
-#branding h1 a:visited {
-  color: #fff;
-}
-div.breadcrumbs {
-  background: #2d6a4f;
-  color: #d8f3dc;
-}
-div.breadcrumbs a {
-  color: #d8f3dc;
-}
+/* ── Header: green ────────────────────────────────────────────────────────── */
+#header { background: #1e4d35; }
+#header a:link, #header a:visited { color: #e9c46a; }
+#branding h1, #branding h1 a:link, #branding h1 a:visited { color: #fff; }
+div.breadcrumbs { background: #2d6a4f; color: #d8f3dc; }
+div.breadcrumbs a { color: #d8f3dc; }
 
-/* ── Body / content (grey) ────────────────────────────────────────────────── */
-body {
-  background: #f1f3f5;
-  color: #343a40;
-}
+/* ── Everything else: light grey ──────────────────────────────────────────── */
+body           { background: #f5f5f5; color: #333; }
+#content       { background: #f5f5f5; }
 
-/* Content area */
-#content,
-#content-main {
-  background: #f1f3f5;
-}
+.module        { background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; }
+.module h2, .module caption, .inline-group h2 { background: #e0e0e0; color: #333; }
 
-/* Module headers (section titles like "Authentication", "Select...") */
-.module h2,
-.module caption,
-.inline-group h2 {
-  background: #495057;
-  color: #fff;
-  font-weight: 600;
-}
+#nav-sidebar                { background: #fff; border-right: 1px solid #e0e0e0; }
+#nav-sidebar .module h2     { background: #e0e0e0; color: #333; }
+#nav-sidebar a:link, #nav-sidebar a:visited { color: #444; }
 
-/* Sidebar */
-#nav-sidebar {
-  background: #fff;
-  border-right: 1px solid #dee2e6;
-}
-#nav-sidebar .module h2 {
-  background: #343a40;
-  color: #fff;
-}
-#nav-sidebar a:link,
-#nav-sidebar a:visited {
-  color: #495057;
-}
-#nav-sidebar a:hover {
-  color: #1e4d35;
-}
+#result_list th             { background: #e0e0e0; color: #333; font-weight: 600; }
+#result_list tr:nth-child(odd) td  { background: #fff; color: #333; }
+#result_list tr:nth-child(even) td { background: #fafafa; color: #333; }
+#result_list tr:hover td           { background: #f0f0f0; }
+#result_list td             { border-bottom: 1px solid #e0e0e0; }
+tr.selected td              { background: #e8f5e9 !important; }
 
-/* Cards / module boxes */
-.module {
-  background: #fff;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.06);
-}
+a:link, a:visited           { color: #2d6a4f; }
+a:hover                     { color: #1e4d35; }
 
-/* Tables */
-#result_list th {
-  background: #495057;
-  color: #fff;
+.button, input[type=submit], input[type=button] {
+  background: #555; color: #fff; border: none; border-radius: 4px; cursor: pointer;
 }
-#result_list tr:nth-child(odd) td  { background: #fff; }
-#result_list tr:nth-child(even) td { background: #f8f9fa; }
-#result_list tr:hover td           { background: #e9ecef; }
-#result_list td                    { color: #343a40; border-bottom: 1px solid #dee2e6; }
+.button:hover, input[type=submit]:hover  { background: #333; }
+input[type=submit].default               { background: #2d6a4f; }
+input[type=submit].default:hover         { background: #1e4d35; }
 
-/* Selected rows */
-tr.selected td { background: #d8f3dc !important; }
-
-/* Links in content */
-#content a:link,
-#content a:visited {
-  color: #2d6a4f;
-}
-#content a:hover {
-  color: #1e4d35;
-}
-
-/* Buttons */
-.button,
-input[type=submit],
-input[type=button],
-.submit-row input[type=submit] {
-  background: #495057;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  cursor: pointer;
-}
-.button:hover,
-input[type=submit]:hover,
-input[type=submit].default:hover {
-  background: #343a40;
-}
-input[type=submit].default {
-  background: #2d6a4f;
-}
-
-/* Action bar (select action dropdown row) */
-.actions {
-  background: #e9ecef;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-}
-
-/* Filters sidebar */
-#changelist-filter {
-  background: #fff;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-}
-#changelist-filter h2 {
-  background: #495057;
-  color: #fff;
-  border-radius: 6px 6px 0 0;
-}
-#changelist-filter h3 {
-  color: #495057;
-  border-bottom: 1px solid #dee2e6;
-}
-#changelist-filter li.selected a {
-  color: #1e4d35;
-  font-weight: 600;
-}
+.actions                    { background: #f0f0f0; border: 1px solid #e0e0e0; }
+#changelist-filter          { background: #fff; border: 1px solid #e0e0e0; }
+#changelist-filter h2       { background: #e0e0e0; color: #333; }
+#changelist-filter h3       { color: #555; border-bottom: 1px solid #e0e0e0; }
 
 /* Pending users link in header */
 #mitumba-panel-link {
-  float: right;
-  margin-top: 8px;
-  margin-right: 12px;
-  background: rgba(255,255,255,.15);
-  border-radius: 6px;
-  padding: 5px 12px;
-  font-size: .82rem;
-  color: #fff !important;
-  text-decoration: none;
+  float: right; margin-top: 8px; margin-right: 12px;
+  background: rgba(255,255,255,.2); border-radius: 6px;
+  padding: 5px 12px; font-size: .82rem; color: #fff !important; text-decoration: none;
 }
-#mitumba-panel-link:hover {
-  background: rgba(255,255,255,.25);
-}
-
-/* Dashboard app list */
-.app-authentication th,
-.app-shop_settings th {
-  background: #495057;
-}
+#mitumba-panel-link:hover { background: rgba(255,255,255,.3); }
