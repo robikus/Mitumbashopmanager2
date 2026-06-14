@@ -126,8 +126,8 @@ def logout_view(request):
     logout(request)
 
     params = {
-        "client_id":   settings.COGNITO_APP_CLIENT_ID,
-        "logout_uri":  f"{settings.APP_DOMAIN}/auth/logged-out/",
+        "client_id":    settings.COGNITO_APP_CLIENT_ID,
+        "redirect_uri": f"{settings.APP_DOMAIN}/auth/logged-out/",
     }
     url = f"{settings.COGNITO_DOMAIN}/logout?{urlencode(params)}"
     return HttpResponseRedirect(url)

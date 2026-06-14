@@ -23,6 +23,12 @@ variable "extra_callback_urls" {
   default     = ["http://localhost:8000/auth/callback/"]
 }
 
+variable "extra_logout_urls" {
+  description = "Additional OAuth2 logout URLs to allow (e.g. localhost for development)"
+  type        = list(string)
+  default     = ["http://localhost:8000/auth/logged-out/"]
+}
+
 variable "common_tags" {
   description = "Tags applied to all resources"
   type        = map(string)

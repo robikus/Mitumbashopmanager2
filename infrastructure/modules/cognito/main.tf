@@ -110,9 +110,10 @@ resource "aws_cognito_user_pool_client" "django" {
     var.extra_callback_urls
   )
 
-  logout_urls = [
-    "https://${var.app_domain}/auth/logout/",
-  ]
+  logout_urls = concat(
+    ["https://${var.app_domain}/auth/logged-out/"],
+    var.extra_logout_urls
+  )
 
   supported_identity_providers = ["COGNITO"]
 
