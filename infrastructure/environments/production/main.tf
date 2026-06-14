@@ -88,6 +88,7 @@ module "cognito" {
   cognito_domain_prefix = var.cognito_domain_prefix
   app_domain            = var.app_domain
   extra_callback_urls   = var.cognito_extra_callback_urls
+  extra_logout_urls     = var.cognito_extra_logout_urls
   common_tags           = local.common_tags
 }
 

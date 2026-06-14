@@ -97,6 +97,12 @@ variable "cognito_extra_callback_urls" {
   default     = ["http://localhost:8000/auth/callback/"]
 }
 
+variable "cognito_extra_logout_urls" {
+  description = "Additional OAuth2 logout URLs (e.g. localhost for dev)"
+  type        = list(string)
+  default     = ["http://localhost:8000/auth/logged-out/"]
+}
+
 # ── IAM ───────────────────────────────────────────────────────────────────────
 
 variable "create_admin_user" {
