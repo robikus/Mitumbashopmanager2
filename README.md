@@ -440,55 +440,68 @@ backend/
 
 ### First-time backend deployment
 
+The EC2 bootstrap script (`user_data.sh`) runs automatically on first boot and
+handles: package installation, PostgreSQL setup, Python venv at `/opt/mitumba/venv`,
+Nginx config, and the systemd `mitumba.service`. Wait for it to finish before
+proceeding (~2 min):
+
 ```bash
-# SSH into the server
+# SSH in
 ssh -i ~/.ssh/id_ed25519 ubuntu@<server-ip>
 
-# Clone the repository
-git clone https://github.com/<your-username>/Mitumbashopmanager2.git
-
-# Install Python venv support (Ubuntu doesn't ship it)
-sudo apt install python3.10-venv -y
-
-# Create virtual environment and install dependencies
-cd ~/Mitumbashopmanager2/backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Create the .env file (fill in all values)
-nano ~/Mitumbashopmanager2/.env
+# Confirm bootstrap finished
+sudo tail -3 /var/log/mitumba-bootstrap.log
+# Should end with: === Bootstrap complete ===
 ```
 
-`.env` contents:
-
-```
-DJANGO_SECRET_KEY=<generate: python -c "import secrets; print(secrets.token_urlsafe(50))">
-DATABASE_URL=postgres://mitumba_user:<db_password>@localhost:5432/mitumba_db
-ALLOWED_HOSTS=<server-ip>,localhost
-COGNITO_REGION=eu-central-1
-COGNITO_USER_POOL_ID=<terraform output cognito_user_pool_id>
-COGNITO_APP_CLIENT_ID=<terraform output cognito_app_client_id>
-COGNITO_APP_CLIENT_SECRET=<terraform output -raw cognito_app_client_secret>
-COGNITO_DOMAIN=https://<cognito_domain_prefix>.auth.eu-central-1.amazoncognito.com
-APP_DOMAIN=http://<server-ip>
-CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://<server-ip>
-```
+**Update `/opt/mitumba/.env`** (bootstrap writes it with Terraform values, but
+two lines need fixing for SSH-tunnel access):
 
 ```bash
-# Create database tables (authentication covers UserProfile + PendingUser)
-python manage.py makemigrations authentication shop_settings purchases sales finance \
-  --settings=config.settings.production
-python manage.py migrate --settings=config.settings.production
-
-# Collect static files
-python manage.py collectstatic --settings=config.settings.production
-
-# Fix static file permissions (allows Nginx to read them)
-chmod o+x /home/ubuntu
-chmod o+x /home/ubuntu/Mitumbashopmanager2
-chmod o+x /home/ubuntu/Mitumbashopmanager2/backend
+sudo nano /opt/mitumba/.env
 ```
+
+Change/add:
+```
+ALLOWED_HOSTS=<app_domain>,localhost
+APP_DOMAIN=http://localhost:8000
+CSRF_TRUSTED_ORIGINS=http://localhost:8000
+```
+
+Also replace `DJANGO_SECRET_KEY` if it still shows the placeholder from
+`terraform.tfvars` — generate a real one:
+```bash
+sudo /opt/mitumba/venv/bin/python -c \
+  "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
+**Clone the repo and run the deploy script:**
+
+```bash
+git clone https://github.com/robikus/Mitumbashopmanager2.git ~/Mitumbashopmanager2
+bash ~/Mitumbashopmanager2/scripts/deploy.sh
+```
+
+`scripts/deploy.sh` handles everything in one step:
+- Links `backend/` into `/opt/mitumba/backend/` (where the service expects it)
+- Installs Python dependencies (including boto3)
+- Copies `.env` to repo root for `manage.py` access
+- Runs `migrate` (creates all database tables)
+- Runs `collectstatic`
+- Fixes directory permissions for Nginx
+- Restarts the `mitumba` service
+
+**Create the superuser** (needed for the admin approval panel):
+
+```bash
+sudo /opt/mitumba/venv/bin/python /opt/mitumba/backend/manage.py \
+  createsuperuser --settings=config.settings.production
+```
+
+> **Important:** Migration files must be committed to git. After any model
+> change, run `makemigrations` locally, commit the generated files, and push
+> before deploying. The deploy script only runs `migrate` — it does not run
+> `makemigrations`.
 
 ### Gunicorn systemd service
 
@@ -545,12 +558,11 @@ server {
 
 ```bash
 ssh -i ~/.ssh/id_ed25519 ubuntu@<server-ip>
-cd ~/Mitumbashopmanager2 && git pull
-cd backend && source venv/bin/activate
-pip install -r requirements.txt   # only if dependencies changed
-python manage.py migrate --settings=config.settings.production
-sudo systemctl restart gunicorn
+cd ~/Mitumbashopmanager2 && git pull && bash scripts/deploy.sh
 ```
+
+The deploy script handles dependency updates, migrations, staticfiles, and
+service restart automatically.
 
 ---
 
