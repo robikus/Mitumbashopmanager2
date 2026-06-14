@@ -35,11 +35,12 @@ SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-CSRF_TRUSTED_ORIGINS = [
-    o.strip()
-    for o in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
-    if o.strip()
-]
+_csrf_origins = os.environ.get("CSRF_TRUSTED_ORIGINS", "")
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(",") if o.strip()]
+
+# Always trust localhost for SSH-tunnel access
+if "http://localhost:8000" not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append("http://localhost:8000")
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
 # Not needed for a same-origin SPA; keep restrictive.
