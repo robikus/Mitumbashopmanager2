@@ -74,10 +74,13 @@ resource "aws_instance" "app" {
     Name = "${var.project_name}-app-server"
   })
 
-  # Replace the instance if user_data changes (i.e. new bootstrap config).
-  # Comment this out if you manage the server with Ansible/SSH instead.
+  # Ignore AMI and user_data changes after initial creation.
+  # The AMI data source uses most_recent=true which changes as Canonical
+  # publishes new images — without this ignore, every terraform apply would
+  # destroy and recreate the server. user_data is bootstrap-only; config
+  # changes are applied via SSH/deploy.sh, not by replacing the instance.
   lifecycle {
-    create_before_destroy = true
+    ignore_changes = [ami, user_data]
   }
 }
 
