@@ -1,130 +1,135 @@
 # Deployment Progress
 
-## Current state (end of session 2026-06-14)
+## Current state (2026-06-14)
 
-The app is live and accessible via SSH tunnel. Login works via AWS Cognito.
-The page loads but **CSS/static files are not being served** — this is the next thing to fix.
+The app is **fully working** via SSH tunnel:
+- Login via AWS Cognito works
+- Purchases can be saved to the database
+- CSS/static files load correctly
+- All database tables created and migrated
 
-### Infrastructure (all done)
-- Terraform deployed: VPC, subnet, security group, EC2 t3.micro, Elastic IP, Cognito user pool, IAM roles
-- Server IP: `63.183.43.81`
-- Region: `eu-central-1` (Frankfurt)
-- Terraform state: local, at `infrastructure/environments/production/terraform.tfstate`
+The remaining items are production hardening (HTTPS, domain, migrations in git).
 
-### Server state
-- OS: Ubuntu 22.04
-- Nginx 1.18 — running, config at `/etc/nginx/sites-available/mitumba`
-- Gunicorn — running as systemd service (`/etc/systemd/system/gunicorn.service`), socket at `/run/gunicorn/mitumba.sock`
-- PostgreSQL 14 — running, database `mitumba_db`, user `mitumba_user`
-- Repo cloned at: `~/Mitumbashopmanager2`
-- Venv at: `~/Mitumbashopmanager2/backend/venv`
-- `.env` file at: `~/Mitumbashopmanager2/.env`
-- Static files collected to: `~/Mitumbashopmanager2/backend/staticfiles/`
-- All migrations applied (including app-specific: authentication, purchases, sales, shop_settings)
+---
 
-### Cognito state
-- User pool ID: `eu-central-1_nrMzlxwlB`
-- App client ID: `1fabgguo8k5krsdpsc9b4pbfgp`
-- Cognito domain: `https://mitumba-shop-yourname.auth.eu-central-1.amazoncognito.com`
-- User created: `polakovic.robert@gmail.com`
-- Allowed callback URLs: `http://localhost:8000/auth/callback/`, `https://shop.example.com/auth/callback/`
+## How to access the app
 
-### How to access the app right now
-SSL is not set up yet. Access via SSH tunnel:
+SSL is not set up yet. Access requires an SSH tunnel. Open **three terminals**:
 
+**Terminal 1 — app tunnel:**
 ```bash
-# Terminal 1 — keep open
 ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -L 8000:localhost:80 ubuntu@63.183.43.81 -N
-
-# Browser
-http://localhost:8000
 ```
 
-Login with `polakovic.robert@gmail.com` and the Cognito password you set.
+**Terminal 2 — pgAdmin tunnel (optional):**
+```bash
+ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -L 5433:localhost:5432 ubuntu@63.183.43.81 -N
+```
+
+**Terminal 3 — server shell:**
+```bash
+ssh -i ~/.ssh/id_ed25519 ubuntu@63.183.43.81
+```
+
+Then open `http://localhost:8000` in your browser and log in with:
+- Email: `polakovic.robert@gmail.com`
+- Password: the one you set via Cognito CLI
+
+**pgAdmin connection:** `localhost:5433`, database `mitumba_db`, user `mitumba_user`,
+password `CHANGE_ME_use_a_strong_random_password_here_min20chars`
+
+---
+
+## Infrastructure (all done)
+
+- Terraform deployed: VPC, subnet, security group, EC2 t3.micro, Elastic IP, Cognito, IAM
+- Server IP: `63.183.43.81`
+- Region: `eu-central-1` (Frankfurt)
+- Terraform state: local at `infrastructure/environments/production/terraform.tfstate`
+- Cognito user pool: `eu-central-1_nrMzlxwlB`
+- Cognito app client: `1fabgguo8k5krsdpsc9b4pbfgp`
+- Cognito domain: `https://mitumba-shop-yourname.auth.eu-central-1.amazoncognito.com`
+
+---
+
+## Server state
+
+| Component | Status | Details |
+|---|---|---|
+| Nginx 1.18 | running | `/etc/nginx/sites-available/mitumba` |
+| Gunicorn | running | systemd service, socket `/run/gunicorn/mitumba.sock` |
+| PostgreSQL 14 | running | db `mitumba_db`, user `mitumba_user` |
+| Django | deployed | repo at `~/Mitumbashopmanager2`, venv at `~/Mitumbashopmanager2/backend/venv` |
+| Static files | working | collected to `~/Mitumbashopmanager2/backend/staticfiles/` |
+| Migrations | applied | all apps: auth, authentication, purchases, sales, shop_settings |
+| `.env` | at `~/Mitumbashopmanager2/.env` | contains DB URL, Cognito secrets, Django secret key |
 
 ---
 
 ## Known issues / next steps
 
-### 1. Static files not loading (NEXT)
-The page loads but has no CSS/JS. Nginx config serves static files from
-`/home/ubuntu/Mitumbashopmanager2/backend/staticfiles/` but they may not be
-accessible due to directory permissions, or the static URL paths in the HTML
-don't match the Nginx location block.
+### 1. Commit migrations to git (important)
+App migrations were created on the server but not yet committed. Do this soon or
+they'll be lost if the server is recreated:
 
-**How to debug:**
 ```bash
-# On server — check if static files exist
-ls ~/Mitumbashopmanager2/backend/staticfiles/
-
-# Check Nginx can read them
-sudo -u www-data ls /home/ubuntu/Mitumbashopmanager2/backend/staticfiles/
-
-# Check Nginx error log when browser loads page
-sudo tail -f /var/log/nginx/error.log
-```
-
-**Likely fix:** Nginx (running as www-data) can't read files in /home/ubuntu.
-Either change static file location or fix permissions:
-```bash
-chmod o+x /home/ubuntu
-chmod o+x /home/ubuntu/Mitumbashopmanager2
-chmod o+x /home/ubuntu/Mitumbashopmanager2/backend
-```
-
-### 2. HTTPS / SSL not set up
-Currently HTTP only. Cognito won't allow adding the server IP as an HTTP
-callback URL (only localhost is allowed over HTTP). To use a real domain:
-1. Buy/get a domain name
-2. Point DNS A record to `63.183.43.81`
-3. Run: `sudo certbot --nginx -d yourdomain.com`
-4. Update `terraform.tfvars`: set `app_domain` to the real domain
-5. Update `.env` on server: set `APP_DOMAIN=https://yourdomain.com`
-6. Update `ALLOWED_HOSTS` in `.env` to include the domain
-7. Run `terraform apply` to register the new callback URL in Cognito
-8. Re-enable SSL settings in `backend/config/settings/production.py`
-
-### 3. Django secret key hardcoded in .env
-The `DJANGO_SECRET_KEY` in `.env` on the server was generated manually.
-It is NOT stored in Terraform or version control — don't lose it.
-
-### 4. migrations not in git
-App migrations were created on the server with `makemigrations` but not
-committed to the repo. Run on laptop:
-```bash
-git pull   # get the migration files from server... 
-# Actually: copy them from server first
+# From your laptop, copy migrations from server
 scp -i ~/.ssh/id_ed25519 -r ubuntu@63.183.43.81:~/Mitumbashopmanager2/backend/apps/*/migrations ./backend/apps/
-# Then commit:
+
+# Then commit
 git add backend/apps/*/migrations/
 git commit -m "Add initial migrations for all apps"
 git push
 ```
 
-### 5. Finance app has no model
-`apps/finance` has no `models.py` content — `makemigrations` skipped it.
-Needs models defined before it can be migrated.
+### 2. Set up HTTPS + real domain (needed for production)
+Currently HTTP only — Cognito won't allow the server IP as a callback URL over
+HTTP (only localhost is allowed). To go fully public:
+
+1. Get a domain name (e.g. buy one or use a free one)
+2. Point DNS A record to `63.183.43.81`
+3. Update `terraform.tfvars`: set `app_domain = "yourdomain.com"`
+4. Run `terraform apply` — registers the HTTPS callback URL in Cognito
+5. On the server: `sudo certbot --nginx -d yourdomain.com`
+6. Update `.env`: `APP_DOMAIN=https://yourdomain.com`, update `ALLOWED_HOSTS`
+7. Re-enable SSL settings in `backend/config/settings/production.py`:
+   ```python
+   SECURE_SSL_REDIRECT = True
+   SESSION_COOKIE_SECURE = True
+   CSRF_COOKIE_SECURE = True
+   SECURE_HSTS_SECONDS = 31536000
+   ```
+
+### 3. Finance app has no model
+`apps/finance` was skipped by `makemigrations` — no models defined yet.
+
+### 4. Django secret key not backed up
+The `DJANGO_SECRET_KEY` in `.env` on the server was generated manually.
+It is NOT in version control — if the server is destroyed, all sessions are
+invalidated. Consider storing it in AWS Secrets Manager or at minimum note it
+somewhere safe.
 
 ---
 
-## Key file locations
+## Bugs fixed during deployment
 
-| What | Where |
+| Bug | Fix |
 |---|---|
-| Terraform config | `infrastructure/environments/production/` |
-| Django settings | `backend/config/settings/production.py` |
-| Nginx config (server) | `/etc/nginx/sites-available/mitumba` |
-| Gunicorn service (server) | `/etc/systemd/system/gunicorn.service` |
-| App env vars (server) | `~/Mitumbashopmanager2/.env` |
-| Static files (server) | `~/Mitumbashopmanager2/backend/staticfiles/` |
+| `SECURE_SSL_REDIRECT=True` broke HTTP access | Disabled in `production.py` |
+| `.env` loaded after `base.py` → `DJANGO_SECRET_KEY` missing | Moved `load_dotenv()` before `from .base import *` |
+| EC2 instance type `t2.micro` not free-tier in Frankfurt | Changed to `t3.micro` |
+| SSH key had forgotten passphrase | Regenerated key, replaced EC2 instance |
+| App migrations not created | Ran `makemigrations` with explicit app names |
+| POST requests returning 403 (CSRF) | Added `CSRF_TRUSTED_ORIGINS` for localhost tunnel |
+| Nginx security group description had em dash | Replaced with regular hyphen |
+| Gunicorn socket path mismatch with Nginx | Aligned both to `mitumba.sock` |
+
+---
 
 ## Useful commands
 
 ```bash
-# SSH into server
-ssh -i ~/.ssh/id_ed25519 ubuntu@63.183.43.81
-
-# Restart app after code change
+# Restart app after code change (on server)
 cd ~/Mitumbashopmanager2 && git pull
 sudo systemctl restart gunicorn
 
@@ -138,4 +143,12 @@ sudo tail -f /var/log/nginx/error.log
 cd ~/Mitumbashopmanager2/backend
 source venv/bin/activate
 python manage.py <command> --settings=config.settings.production
+
+# Reset a Cognito user password (on laptop)
+aws cognito-idp admin-set-user-password \
+  --user-pool-id eu-central-1_nrMzlxwlB \
+  --username polakovic.robert@gmail.com \
+  --password 'YourPassword123!' \
+  --permanent \
+  --region eu-central-1
 ```
