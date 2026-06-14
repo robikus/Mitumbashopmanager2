@@ -82,7 +82,8 @@ python3.11 -m venv "$APP_DIR/venv"
   gunicorn \
   django-cors-headers \
   whitenoise \
-  python-dotenv
+  python-dotenv \
+  boto3
 
 # ── Environment file ─────────────────────────────────────────────────────────
 # Written here so the systemd service can source it.  Update this file
@@ -91,17 +92,22 @@ cat > "$APP_DIR/.env" << 'ENVEOF'
 DJANGO_SETTINGS_MODULE=config.settings.production
 DJANGO_SECRET_KEY=${django_secret_key}
 DATABASE_URL=postgresql://${db_user}:${db_password}@localhost:5432/${db_name}
-ALLOWED_HOSTS=${app_domain}
+ALLOWED_HOSTS=${app_domain},localhost
 COGNITO_REGION=${cognito_region}
 COGNITO_USER_POOL_ID=${cognito_user_pool_id}
 COGNITO_APP_CLIENT_ID=${cognito_app_client_id}
 COGNITO_APP_CLIENT_SECRET=${cognito_app_client_secret}
 COGNITO_DOMAIN=https://${cognito_domain}.auth.${cognito_region}.amazoncognito.com
 APP_DOMAIN=https://${app_domain}
+CSRF_TRUSTED_ORIGINS=http://localhost:8000
 ENVEOF
 
 chown -R www-data:www-data "$APP_DIR"
 chmod 640 "$APP_DIR/.env"
+
+# Pre-create Gunicorn log files so www-data can write to them on first start
+touch /var/log/mitumba-access.log /var/log/mitumba-error.log
+chown www-data:www-data /var/log/mitumba-access.log /var/log/mitumba-error.log
 
 # ── Systemd service ──────────────────────────────────────────────────────────
 cat > /etc/systemd/system/mitumba.service << 'SVCEOF'

@@ -37,7 +37,7 @@ resource "aws_iam_role" "ec2_app" {
 # Cognito permissions — token validation (read) + admin approval panel (write)
 resource "aws_iam_policy" "ec2_cognito" {
   name        = "${var.project_name}-ec2-cognito-policy"
-  description = "Allows EC2 to validate Cognito tokens and create approved users"
+  description = "Allows EC2 to read Cognito user pool info (for token validation)"
 
   policy = jsonencode({
     Version = "2012-10-17"
