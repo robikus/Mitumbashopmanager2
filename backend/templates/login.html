@@ -41,32 +41,6 @@
     font-size: .85rem;
     margin-bottom: 32px;
   }
-  .auth-divider {
-    border: none;
-    border-top: 1px solid var(--gr2);
-    margin: 20px 0;
-    text-align: center;
-    position: relative;
-  }
-  .auth-divider span {
-    background: var(--w);
-    padding: 0 10px;
-    font-size: .78rem;
-    color: var(--gr4);
-    position: relative;
-    top: -10px;
-  }
-  .register-link {
-    text-align: center;
-    font-size: .84rem;
-    color: var(--gr6);
-  }
-  .register-link a {
-    color: var(--g6);
-    font-weight: 600;
-    text-decoration: none;
-  }
-  .register-link a:hover { text-decoration: underline; }
   .err-banner {
     background: #fff5f5;
     border: 1.5px solid #fca5a5;
@@ -96,13 +70,10 @@
       Sign in
     </a>
 
-    <hr class="auth-divider"><span>new here?</span>
-
-    <div class="register-link">
-      <a href="/auth/register/">Request access</a>
-      &nbsp;&mdash;&nbsp;
-      submit your details and the admin will activate your account after confirming payment.
-    </div>
+    <p style="margin-top:16px;font-size:.84rem;color:var(--gr6);text-align:center;line-height:1.5">
+      New here? <a href="/auth/register/" style="color:var(--g6);font-weight:600;text-decoration:none">Request access</a>
+      — submit your details and the admin will activate your account after confirming payment.
+    </p>
   </div>
 </div>
 
