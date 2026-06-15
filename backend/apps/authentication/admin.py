@@ -1,7 +1,7 @@
 """
 Django admin registration for authentication models.
 
-PendingUser — visible at /django-admin/authentication/pendinguser/
+PendingUser — visible at /admin/authentication/pendinguser/
 Approve/reject actions call the Cognito API directly from the admin.
 """
 

@@ -3,7 +3,7 @@ Root URL configuration.
 
 API endpoints:   /api/...
 Auth endpoints:  /auth/...
-Admin:           /django-admin/
+Admin:           /admin/
 Everything else: served by the SPA shell (index.html)
 """
 
@@ -12,7 +12,7 @@ from django.urls import path, include
 from apps.authentication.views import spa_shell
 
 urlpatterns = [
-    path("django-admin/", admin.site.urls),
+    path("admin/", admin.site.urls),
 
     # Authentication (Cognito OAuth2 callback, login redirect, logout)
     path("auth/", include("apps.authentication.urls")),
