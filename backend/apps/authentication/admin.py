@@ -87,7 +87,7 @@ class PendingUserAdmin(admin.ModelAdmin):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display    = ("user", "cognito_sub", "created_at")
+    list_display    = ("get_email", "get_phone", "cognito_sub", "created_at")
     search_fields   = ("user__email", "cognito_sub")
     readonly_fields = ("cognito_sub", "created_at", "updated_at",
                        "access_token", "id_token", "refresh_token")
@@ -95,3 +95,12 @@ class UserProfileAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+    @admin.display(description="Email")
+    def get_email(self, obj):
+        return obj.user.email
+
+    @admin.display(description="Phone")
+    def get_phone(self, obj):
+        pending = PendingUser.objects.filter(email=obj.user.email).first()
+        return pending.phone if pending else "—"
