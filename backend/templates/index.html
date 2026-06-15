@@ -24,7 +24,7 @@
 <!-- APP -->
 <div id="app">
   <header>
-    <div class="htitle"><img src="{% static 'img/logo.png' %}" alt="" style="height:28px;width:auto;vertical-align:middle;margin-right:8px">mitumba<span>.</span></div>
+    <div class="htitle"><img src="{% static 'img/logo.png' %}" alt="" style="height:28px;width:auto;vertical-align:middle;margin-right:8px">mitumba<span>.</span> <span style="font-size:.75rem;font-weight:400;opacity:.7;letter-spacing:1px;text-transform:uppercase">shop manager</span></div>
     <div class="hbtns">
       <span style="color:rgba(255,255,255,.7);font-size:.8rem;padding:7px 4px" id="userEmail">{{ user_email }}{% if is_staff %} <span style="font-size:.7rem;background:var(--gold);color:var(--g9);border-radius:4px;padding:1px 5px;font-weight:700">admin</span>{% endif %}</span>
       {% if is_staff %}<a class="ibtn" href="/auth/admin/pending/">&#9881; Users</a>{% endif %}
