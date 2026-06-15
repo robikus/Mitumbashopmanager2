@@ -21,7 +21,8 @@
 
 {% block welcome-msg %}{% endblock %}
 
-{% block nav-global %}
+{% block header %}
+{{ block.super }}
 <nav class="ma-nav">
   <a class="ma-tab{% if 'pendinguser' in request.path %} on{% endif %}"
      href="{% url 'admin:authentication_pendinguser_changelist' %}">👥 Pending Users</a>
