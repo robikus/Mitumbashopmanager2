@@ -151,6 +151,15 @@ async function saveSettings() {
   }
 }
 
+// ── Form validation helpers ───────────────────────────────────────────────────
+
+function fieldErr(id, hasError) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('err', hasError);
+  return hasError;
+}
+function clearErrs(...ids) { ids.forEach(id => fieldErr(id, false)); }
+
 // ── Purchases ─────────────────────────────────────────────────────────────────
 
 function initPurchaseModal() {
@@ -159,6 +168,7 @@ function initPurchaseModal() {
   document.getElementById('pCost').value  = '';
   document.getElementById('pType').value  = 'Single';
   document.getElementById('pPrev').textContent = 'Fill in pieces and cost to see calculation preview.';
+  clearErrs('pDate', 'pQty', 'pCost');
   const cats = (_settings?.categories || []).map(c => c.name);
   const sel  = document.getElementById('pCat');
   sel.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
@@ -190,10 +200,11 @@ async function savePurchase() {
     total_pieces:  +document.getElementById('pQty').value,
     total_cost:    +document.getElementById('pCost').value,
   };
-  if (!payload.date || !payload.category || !payload.total_pieces || !payload.total_cost) {
-    toast('⚠️ Please fill all fields', true);
-    return;
-  }
+  const invalid =
+    fieldErr('pDate', !payload.date) |
+    fieldErr('pQty',  !payload.total_pieces) |
+    fieldErr('pCost', !payload.total_cost);
+  if (invalid) { toast('⚠️ Please fill all required fields', true); return; }
   try {
     const p = await api('POST', '/api/purchases/', payload);
     _purchases.unshift(p);
@@ -245,6 +256,7 @@ function initSaleModal() {
   document.getElementById('sType').value  = 'B2C';
   document.getElementById('sRev').value   = '';
   document.getElementById('sNotes').value = '';
+  clearErrs('sDate', 'sRev');
   _sItemCount = 1;
   renderSaleItems();
 }
@@ -301,8 +313,11 @@ async function saveSale() {
     notes:         document.getElementById('sNotes').value,
     items,
   };
-  if (!payload.date || !payload.total_revenue) { toast('⚠️ Please fill date and revenue', true); return; }
-  if (!items.length)                            { toast('⚠️ Add at least one item', true);        return; }
+  const invalid =
+    fieldErr('sDate', !payload.date) |
+    fieldErr('sRev',  !payload.total_revenue);
+  if (invalid) { toast('⚠️ Please fill date and revenue', true); return; }
+  if (!items.length) { toast('⚠️ Add at least one item with quantity', true); return; }
   try {
     const s = await api('POST', '/api/sales/', payload);
     _sales.unshift(s);
@@ -352,6 +367,7 @@ function initCostModal() {
   document.getElementById('cCat').value    = 'rent';
   document.getElementById('cAmount').value = '';
   document.getElementById('cNotes').value  = '';
+  clearErrs('cDate', 'cAmount');
 }
 
 async function saveCost() {
@@ -361,10 +377,10 @@ async function saveCost() {
     amount:   +document.getElementById('cAmount').value,
     notes:    document.getElementById('cNotes').value,
   };
-  if (!payload.date || !payload.amount) {
-    toast('⚠️ Please fill date and amount', true);
-    return;
-  }
+  const invalid =
+    fieldErr('cDate',   !payload.date) |
+    fieldErr('cAmount', !payload.amount);
+  if (invalid) { toast('⚠️ Please fill date and amount', true); return; }
   try {
     const c = await api('POST', '/api/other-costs/', payload);
     _costs.unshift(c);

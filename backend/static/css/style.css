@@ -58,6 +58,7 @@ main{flex:1;padding:16px;max-width:800px;margin:0 auto;width:100%}
 .fl{display:block;font-size:.8rem;font-weight:600;color:var(--gr6);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
 .fi,.fs{width:100%;padding:11px 14px;border:1.5px solid var(--gr2);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:.95rem;background:var(--w);color:var(--gr8);outline:none;transition:border .2s}
 .fi:focus,.fs:focus{border-color:var(--g5)}
+.fi.err,.fs.err{border-color:var(--red) !important;background:#fff5f5}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .fhint{font-size:.76rem;color:var(--gr4);margin-top:4px}
 
