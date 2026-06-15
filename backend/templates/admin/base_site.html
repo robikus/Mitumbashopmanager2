@@ -21,15 +21,13 @@
 
 {% block welcome-msg %}{% endblock %}
 
-{% block extrahead %}
-{{ block.super }}
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('.errornote').forEach(function (el) {
-    if (el.textContent.includes('not authorized to access this page')) {
-      el.textContent = 'You are not authorized to access this page.';
-    }
-  });
-});
-</script>
+{% block nav-global %}
+<nav class="mitumba-admin-nav">
+  <a class="mitumba-admin-tab{% if 'pendinguser' in request.path %} on{% endif %}"
+     href="{% url 'admin:authentication_pendinguser_changelist' %}">👥 Pending Users</a>
+  <a class="mitumba-admin-tab{% if 'userprofile' in request.path %} on{% endif %}"
+     href="{% url 'admin:authentication_userprofile_changelist' %}">👤 User Profiles</a>
+</nav>
 {% endblock %}
+
+{% block extrahead %}{{ block.super }}{% endblock %}
