@@ -92,3 +92,6 @@ class UserProfileAdmin(admin.ModelAdmin):
     readonly_fields = ("cognito_sub", "created_at", "updated_at",
                        "access_token", "id_token", "refresh_token")
     ordering        = ("-created_at",)
+
+    def has_add_permission(self, request):
+        return False
