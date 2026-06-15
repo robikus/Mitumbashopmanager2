@@ -10,8 +10,13 @@ from botocore.exceptions import ClientError
 
 from django.conf import settings
 from django.contrib import admin, messages
+from django.contrib.auth.models import User, Group
 
 from .models import PendingUser, UserProfile
+
+# Remove built-in auth models — users are managed via Cognito
+admin.site.unregister(User)
+admin.site.unregister(Group)
 
 
 # ---------------------------------------------------------------------------
