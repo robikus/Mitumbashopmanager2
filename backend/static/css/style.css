@@ -53,7 +53,7 @@ main{flex:1;padding:16px;max-width:800px;margin:0 auto;width:100%}
 /* PERSONAL DRAW */
 .pdraw{background:linear-gradient(135deg,var(--g8),var(--g6));border-radius:var(--r);padding:24px;margin-bottom:16px;text-align:center;box-shadow:var(--shl)}
 .pdraw .plabel{color:var(--g2);font-size:.82rem;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
-.pdraw .pamount{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;color:var(--gold);margin-bottom:4px}
+.pdraw .pamount{font-family:'DM Sans',sans-serif;font-size:2.4rem;font-weight:700;color:var(--gold);margin-bottom:4px}
 .pdraw .psub{color:var(--g2);font-size:.8rem}
 
 /* FORMS */
