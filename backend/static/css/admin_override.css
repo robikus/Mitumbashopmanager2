@@ -10,6 +10,7 @@ html { color-scheme: light !important; }
 #branding h1, #branding h1 a:link, #branding h1 a:visited { color: #fff; font-size: 1.15rem; font-weight: 800; letter-spacing: -.5px; }
 #user-tools { color: rgba(255,255,255,.7); font-size: .8rem; }
 #user-tools a:link, #user-tools a:visited { color: rgba(255,255,255,.85); }
+#toggle-nav-sidebar, button[data-theme-switcher], .theme-toggle { display: none !important; }
 div.breadcrumbs { background: #2d6a4f; color: #d8f3dc; }
 div.breadcrumbs a { color: #d8f3dc; }
 
