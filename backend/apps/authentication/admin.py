@@ -81,6 +81,9 @@ class PendingUserAdmin(admin.ModelAdmin):
     ordering      = ("-created_at",)
     actions       = [approve_users, reject_users]
 
+    def has_add_permission(self, request):
+        return False
+
     def get_queryset(self, request):
         return super().get_queryset(request)
 
