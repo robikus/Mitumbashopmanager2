@@ -15,7 +15,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--gr0);color:var(--gr8);min
 /* APP */
 #app{display:flex;flex-direction:column;min-height:100vh}
 header{background:var(--g8);padding:0 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;height:56px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
-.htitle{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;color:var(--w);letter-spacing:-.5px}
+.htitle{font-family:'Roboto',sans-serif;font-weight:800;font-size:1.15rem;color:var(--w);letter-spacing:-.5px}
 .htitle span{color:var(--gold)}
 .hbtns{display:flex;gap:8px;align-items:center}
 .ibtn{background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:7px 10px;color:var(--w);cursor:pointer;font-size:.8rem;display:flex;align-items:center;gap:4px;transition:all .2s;text-decoration:none}
