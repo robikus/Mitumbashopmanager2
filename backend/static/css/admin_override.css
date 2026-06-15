@@ -53,6 +53,8 @@ input[type=submit].default:hover         { background: #1e4d35; }
 #nav-sidebar { display: none !important; }
 #changelist-filter { display: none !important; }
 .main > .content { margin-left: 0 !important; }
+#content-main { margin-left: 0 !important; }
+.app-authentication caption, .app-authentication .section { display: none !important; }
 
 /* ── Hide "Site administration" heading ─────────────────────────────────── */
 #content > h1 { display: none !important; }

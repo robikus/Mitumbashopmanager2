@@ -31,4 +31,11 @@
 </nav>
 {% endblock %}
 
-{% block extrahead %}{{ block.super }}{% endblock %}
+{% block extrahead %}
+{{ block.super }}
+<script>
+if (window.location.pathname === '/admin/' || window.location.pathname === '/admin') {
+  window.location.replace('/admin/authentication/pendinguser/');
+}
+</script>
+{% endblock %}
