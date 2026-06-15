@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sign in — Mitumba Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<style>
+  .auth-wrap {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--gr0);
+    padding: 24px 16px;
+  }
+  .auth-card {
+    background: var(--g1);
+    border-radius: var(--r);
+    box-shadow: var(--shl);
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 380px;
+  }
+  .auth-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    color: var(--g8);
+    text-align: center;
+    margin-bottom: 6px;
+    letter-spacing: -.5px;
+  }
+  .auth-logo span { color: var(--gold); }
+  .auth-subtitle {
+    text-align: center;
+    color: var(--gr6);
+    font-size: .85rem;
+    margin-bottom: 32px;
+  }
+  .err-banner {
+    background: #fff5f5;
+    border: 1.5px solid #fca5a5;
+    border-radius: var(--rs);
+    padding: 10px 14px;
+    font-size: .83rem;
+    color: var(--red);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .field-label {
+    display: block;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--gr6);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div style="text-align:center;margin-bottom:16px">
+      <img src="{% static 'img/logo.png' %}" alt="" style="height:72px;width:auto">
+    </div>
+    <div class="auth-logo">mitumba<span>.</span></div>
+    <div class="auth-subtitle">Admin</div>
+
+    {% if form.errors %}
+      <div class="err-banner">
+        Incorrect username or password. Please try again.
+      </div>
+    {% endif %}
+
+    <form method="post" action="{{ app_path }}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+
+      <div class="fg" style="margin-bottom:16px">
+        <label class="field-label" for="id_username">Username</label>
+        <input class="fi" type="text" id="id_username" name="username"
+               value="{{ form.username.value|default:'' }}"
+               autofocus autocomplete="username">
+      </div>
+
+      <div class="fg" style="margin-bottom:24px">
+        <label class="field-label" for="id_password">Password</label>
+        <input class="fi" type="password" id="id_password" name="password"
+               autocomplete="current-password">
+      </div>
+
+      <button type="submit" class="btn bp bfull">Sign in</button>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>
