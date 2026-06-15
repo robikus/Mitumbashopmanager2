@@ -15,8 +15,7 @@ class ShopSettingsSerializer(serializers.ModelSerializer):
         model = ShopSettings
         fields = [
             "shop_name",
-            "rent", "wages", "other", "tax",
-            "loan_total", "loan_monthly", "loan_months_paid",
+            "loan_total",
             "unsellable_rate",
             "low_stock_threshold",
             "categories",

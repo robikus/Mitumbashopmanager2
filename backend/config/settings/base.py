@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "apps.sales",
     "apps.dashboard",
     "apps.finance",
+    "apps.other_costs",
 ]
 
 # ── Middleware ─────────────────────────────────────────────────────────────────

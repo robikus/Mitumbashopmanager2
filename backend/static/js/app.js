@@ -1,13 +1,13 @@
 /**
  * Mitumba Shop Manager — Frontend SPA
  *
- * Replaces localStorage with Django REST API calls.
- * All data is per-user and stored in PostgreSQL.
+ * All data is per-user and stored in PostgreSQL via Django REST API.
  *
  * API endpoints:
  *   GET/PUT  /api/settings/
- *   GET/POST /api/purchases/        DELETE /api/purchases/<id>/
- *   GET/POST /api/sales/            DELETE /api/sales/<id>/
+ *   GET/POST /api/purchases/           DELETE /api/purchases/<id>/
+ *   GET/POST /api/sales/               DELETE /api/sales/<id>/
+ *   GET/POST /api/other-costs/         DELETE /api/other-costs/<id>/
  *   GET      /api/dashboard/
  *   GET      /api/finance/?year=&month=
  *   GET      /api/finance/stock/
@@ -19,10 +19,20 @@ const CSRF   = window.MITUMBA.csrfToken;
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MLONG  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-// ── Local cache (populated on load, updated on mutations) ─────────────────────
+const COST_LABELS = {
+  rent:            '🏠 Rent',
+  wages:           '👤 Wages',
+  tax:             '🏛️ Tax',
+  loan_repayment:  '🏦 Loan Repayment',
+  extra_repayment: '🏦 Extra Repayment',
+  other:           '📦 Other',
+};
+
+// ── Local cache ───────────────────────────────────────────────────────────────
 let _settings   = null;
 let _purchases  = [];
 let _sales      = [];
+let _costs      = [];
 let _selMo      = new Date().getMonth();
 let _selYr      = new Date().getFullYear();
 let _sItemCount = 1;
@@ -56,18 +66,20 @@ async function api(method, path, body = null) {
 
 async function initApp() {
   try {
-    [_settings, _purchases, _sales] = await Promise.all([
+    [_settings, _purchases, _sales, _costs] = await Promise.all([
       api('GET', '/api/settings/'),
       api('GET', '/api/purchases/'),
       api('GET', '/api/sales/'),
+      api('GET', '/api/other-costs/'),
     ]);
-    // DRF pagination wraps results in { results: [...] }
     if (_purchases && _purchases.results) _purchases = _purchases.results;
-    if (_sales      && _sales.results)     _sales     = _sales.results;
+    if (_sales     && _sales.results)     _sales     = _sales.results;
+    if (_costs     && _costs.results)     _costs     = _costs.results;
 
     loadSettingsUI();
     renderPurchases();
     renderSales();
+    renderOtherCosts();
     await renderDashboard();
     renderFinanceMonthBar();
   } catch (e) {
@@ -83,9 +95,10 @@ function nav(id, btn) {
   document.querySelectorAll('.ntab').forEach(t => t.classList.remove('on'));
   document.getElementById('pg-' + id).classList.add('on');
   btn.classList.add('on');
-  if (id === 'dashboard') renderDashboard();
-  if (id === 'finance')   renderFinance(_selYr, _selMo);
-  if (id === 'stock')     renderStock();
+  if (id === 'dashboard')   renderDashboard();
+  if (id === 'finance')     renderFinance(_selYr, _selMo);
+  if (id === 'stock')       renderStock();
+  if (id === 'other-costs') renderOtherCosts();
 }
 
 // ── Modals ────────────────────────────────────────────────────────────────────
@@ -93,6 +106,7 @@ function nav(id, btn) {
 function showModal(id) {
   if (id === 'mPurchase') initPurchaseModal();
   if (id === 'mSale')     initSaleModal();
+  if (id === 'mCost')     initCostModal();
   document.getElementById(id).style.display = 'flex';
 }
 function hideModal(id) { document.getElementById(id).style.display = 'none'; }
@@ -104,13 +118,7 @@ function loadSettingsUI() {
   if (!_settings) return;
   const s = _settings;
   document.getElementById('sName').value    = s.shop_name || '';
-  document.getElementById('sRent').value    = s.rent || '';
-  document.getElementById('sWages').value   = s.wages || '';
-  document.getElementById('sOther').value   = s.other || '';
-  document.getElementById('sTax').value     = s.tax || '';
   document.getElementById('sLoanTot').value = s.loan_total || '';
-  document.getElementById('sLoanMo').value  = s.loan_monthly || '';
-  document.getElementById('sLoanPd').value  = s.loan_months_paid || '';
   document.getElementById('sUnsell').value  = s.unsellable_rate || 20;
   document.getElementById('sLowSt').value   = s.low_stock_threshold || 10;
 
@@ -129,14 +137,8 @@ async function saveSettings() {
     if (v) cats.push({ name: v, sort_order: i });
   }
   const payload = {
-    shop_name:           document.getElementById('sName').value   || 'My Shop',
-    rent:                +document.getElementById('sRent').value  || 0,
-    wages:               +document.getElementById('sWages').value || 0,
-    other:               +document.getElementById('sOther').value || 0,
-    tax:                 +document.getElementById('sTax').value   || 0,
+    shop_name:           document.getElementById('sName').value || 'My Shop',
     loan_total:          +document.getElementById('sLoanTot').value || 0,
-    loan_monthly:        +document.getElementById('sLoanMo').value  || 0,
-    loan_months_paid:    +document.getElementById('sLoanPd').value  || 0,
     unsellable_rate:     +document.getElementById('sUnsell').value  || 20,
     low_stock_threshold: +document.getElementById('sLowSt').value   || 10,
     categories:          cats,
@@ -343,6 +345,67 @@ async function delSale(id) {
   }
 }
 
+// ── Other Costs ───────────────────────────────────────────────────────────────
+
+function initCostModal() {
+  document.getElementById('cDate').value   = toDay();
+  document.getElementById('cCat').value    = 'rent';
+  document.getElementById('cAmount').value = '';
+  document.getElementById('cNotes').value  = '';
+}
+
+async function saveCost() {
+  const payload = {
+    date:     document.getElementById('cDate').value,
+    category: document.getElementById('cCat').value,
+    amount:   +document.getElementById('cAmount').value,
+    notes:    document.getElementById('cNotes').value,
+  };
+  if (!payload.date || !payload.amount) {
+    toast('⚠️ Please fill date and amount', true);
+    return;
+  }
+  try {
+    const c = await api('POST', '/api/other-costs/', payload);
+    _costs.unshift(c);
+    hideModal('mCost');
+    renderOtherCosts();
+    toast('✅ Entry saved!');
+  } catch (e) {
+    toast('❌ ' + e.message, true);
+  }
+}
+
+async function delCost(id) {
+  try {
+    await api('DELETE', `/api/other-costs/${id}/`);
+    _costs = _costs.filter(c => c.id !== id);
+    renderOtherCosts();
+    toast('🗑️ Deleted');
+  } catch (e) {
+    toast('❌ Delete failed', true);
+  }
+}
+
+function renderOtherCosts() {
+  const tb = document.getElementById('tCosts');
+  const em = document.getElementById('eCosts');
+  if (!_costs.length) {
+    tb.innerHTML = '';
+    em.style.display = 'block';
+    return;
+  }
+  em.style.display = 'none';
+  const rows = [..._costs].sort((a, b) => b.date.localeCompare(a.date));
+  tb.innerHTML = rows.map(c => `<tr>
+    <td>${fmtD(c.date)}</td>
+    <td>${COST_LABELS[c.category] || c.category}</td>
+    <td>${fmtN(c.amount)}</td>
+    <td style="color:var(--gr5);font-size:.85rem">${c.notes || '—'}</td>
+    <td><button class="btn bd bsm" onclick="delCost(${c.id})">✕</button></td>
+  </tr>`).join('');
+}
+
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
 async function renderDashboard() {
@@ -391,6 +454,13 @@ function selMonth(m) {
   renderFinance(_selYr, _selMo);
 }
 
+function costLine(label, amount) {
+  if (amount === 0) {
+    return `<div class="fline"><span class="flab">${label}</span><span class="fval" style="color:var(--gr5)">KES 0</span></div>`;
+  }
+  return `<div class="fline fcost"><span class="flab">${label}</span><span class="fval">–${fmtKES(amount)}</span></div>`;
+}
+
 async function renderFinance(yr, mo) {
   try {
     const d = await api('GET', `/api/finance/?year=${yr}&month=${mo + 1}`);
@@ -410,18 +480,18 @@ async function renderFinance(yr, mo) {
       </div>
       <div class="card">
         <div class="ctitle">Monthly Costs</div>
-        <div class="fline fcost"><span class="flab">🏠 Rent</span><span class="fval">–${fmtKES(d.costs.rent)}</span></div>
-        <div class="fline fcost"><span class="flab">👤 Wages</span><span class="fval">–${fmtKES(d.costs.wages)}</span></div>
-        <div class="fline fcost"><span class="flab">📦 Other Costs</span><span class="fval">–${fmtKES(d.costs.other)}</span></div>
-        <div class="fline fcost"><span class="flab">🏛️ Tax (monthly share)</span><span class="fval">–${fmtKES(d.costs.tax_monthly)}</span></div>
-        <div class="fline fcost"><span class="flab">🏦 Loan Repayment</span><span class="fval">–${fmtKES(d.costs.loan_monthly)}</span></div>
+        ${costLine('🏠 Rent',             d.costs.rent)}
+        ${costLine('👤 Wages',            d.costs.wages)}
+        ${costLine('🏛️ Tax',              d.costs.tax)}
+        ${costLine('🏦 Loan Repayment',   d.costs.loan_repayment)}
+        ${costLine('🏦 Extra Repayment',  d.costs.extra_repayment)}
+        ${costLine('📦 Other',            d.costs.other)}
         <div class="fline ftot"><span class="flab">TOTAL COSTS</span><span class="fval tr">${fmtKES(d.costs.total)}</span></div>
       </div>
       <div class="card">
         <div class="ctitle">🏦 Loan Status</div>
         <div class="fline"><span class="flab">Original loan</span><span class="fval">${fmtKES(d.loan.total)}</span></div>
-        <div class="fline"><span class="flab">Months paid</span><span class="fval">${d.loan.months_paid}</span></div>
-        <div class="fline"><span class="flab">Total repaid</span><span class="fval">${fmtKES(d.loan.total_repaid)}</span></div>
+        <div class="fline"><span class="flab">Total repaid</span><span class="fval tg">${fmtKES(d.loan.total_repaid)}</span></div>
         <div class="lprog"><div class="lbar" style="width:${d.loan.percent_repaid}%"></div></div>
         <div class="fline ftot"><span class="flab">REMAINING BALANCE</span><span class="fval" style="color:var(--orange)">${fmtKES(d.loan.remaining)}</span></div>
       </div>`;
@@ -461,25 +531,6 @@ async function renderStock() {
   }
 }
 
-// ── Backup / Export ───────────────────────────────────────────────────────────
-
-async function exportData() {
-  const [settings, purchases, sales] = await Promise.all([
-    api('GET', '/api/settings/'),
-    api('GET', '/api/purchases/'),
-    api('GET', '/api/sales/'),
-  ]);
-  const blob = new Blob(
-    [JSON.stringify({ settings, purchases, sales }, null, 2)],
-    { type: 'application/json' }
-  );
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'mitumba-backup-' + toDay() + '.json';
-  a.click();
-  toast('💾 Backup downloaded!');
-}
-
 // ── Utilities ─────────────────────────────────────────────────────────────────
 
 function toDay() { return new Date().toISOString().split('T')[0]; }
@@ -494,7 +545,7 @@ function fmtKES(n) { return 'KES ' + Math.round(+n).toLocaleString(); }
 let _toastT = null;
 function toast(msg, err) {
   const t = document.getElementById('toast');
-  t.textContent   = msg;
+  t.textContent      = msg;
   t.style.background = err ? 'var(--red)' : 'var(--g8)';
   t.classList.add('on');
   if (_toastT) clearTimeout(_toastT);

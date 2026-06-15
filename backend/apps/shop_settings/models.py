@@ -22,19 +22,9 @@ class ShopSettings(models.Model):
 
     shop_name = models.CharField(max_length=120, default="My Mitumba Shop")
 
-    # ── Monthly fixed costs (KES) ─────────────────────────────────────────────
-    rent   = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    wages  = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    other  = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    tax    = models.DecimalField(
-        max_digits=12, decimal_places=2, default=0,
-        help_text="Annual tax in KES. Divided by 12 for monthly share."
-    )
-
     # ── Loan ──────────────────────────────────────────────────────────────────
-    loan_total        = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    loan_monthly      = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    loan_months_paid  = models.PositiveIntegerField(default=0)
+    # Monthly costs and loan repayments are logged individually in OtherCost.
+    loan_total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
     # ── Bale settings ─────────────────────────────────────────────────────────
     unsellable_rate = models.PositiveSmallIntegerField(

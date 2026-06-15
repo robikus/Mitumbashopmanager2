@@ -22,7 +22,8 @@ urlpatterns = [
     path("api/purchases/", include("apps.purchases.urls")),
     path("api/sales/",     include("apps.sales.urls")),
     path("api/dashboard/", include("apps.dashboard.urls")),
-    path("api/finance/",   include("apps.finance.urls")),
+    path("api/finance/",      include("apps.finance.urls")),
+    path("api/other-costs/",  include("apps.other_costs.urls")),
 
     # SPA shell — catch-all so the React/vanilla JS router handles navigation
     path("", spa_shell, name="spa_shell"),

@@ -38,6 +38,7 @@
     <button class="ntab"     onclick="nav('sales',this)">💰 Sales</button>
     <button class="ntab"     onclick="nav('finance',this)">📈 Finance</button>
     <button class="ntab"     onclick="nav('stock',this)">🏪 Stock</button>
+    <button class="ntab"     onclick="nav('other-costs',this)">💸 Other Costs</button>
     <button class="ntab"     onclick="nav('settings',this)">⚙️ Settings</button>
   </nav>
 
@@ -118,6 +119,23 @@
       </div>
     </div>
 
+    <!-- OTHER COSTS -->
+    <div class="pg" id="pg-other-costs">
+      <div class="fb" style="margin-bottom:16px">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;color:var(--g8)">Other Costs &amp; Loan Repayments</div>
+        <button class="btn bp bsm" onclick="showModal('mCost')">+ Add Entry</button>
+      </div>
+      <div class="card">
+        <div class="twrap">
+          <table>
+            <thead><tr><th>Date</th><th>Category</th><th>Amount (KES)</th><th>Notes</th><th></th></tr></thead>
+            <tbody id="tCosts"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="eCosts" style="display:none"><div class="ei">💸</div><p>No entries yet. Add your first cost or loan repayment.</p></div>
+      </div>
+    </div>
+
     <!-- SETTINGS -->
     <div class="pg" id="pg-settings">
       <div class="card">
@@ -130,23 +148,8 @@
           <div class="cgrid" id="sCats"></div>
         </div>
         <div style="margin-bottom:20px">
-          <div class="stitle">💸 Monthly Fixed Costs (KES)</div>
-          <div class="frow">
-            <div class="fg"><label class="fl">Rent</label>  <input class="fi" id="sRent"  type="number" placeholder="15000"></div>
-            <div class="fg"><label class="fl">Wages</label> <input class="fi" id="sWages" type="number" placeholder="8000"></div>
-          </div>
-          <div class="frow">
-            <div class="fg"><label class="fl">Other Costs</label>            <input class="fi" id="sOther" type="number" placeholder="3000"></div>
-            <div class="fg"><label class="fl">Annual Tax (KES/year)</label>  <input class="fi" id="sTax"   type="number" placeholder="12000"></div>
-          </div>
-        </div>
-        <div style="margin-bottom:20px">
-          <div class="stitle">🏦 Loan Details</div>
-          <div class="frow">
-            <div class="fg"><label class="fl">Total Borrowed</label>   <input class="fi" id="sLoanTot" type="number" placeholder="100000"></div>
-            <div class="fg"><label class="fl">Monthly Repayment</label><input class="fi" id="sLoanMo"  type="number" placeholder="5000"></div>
-          </div>
-          <div class="fg"><label class="fl">Months Already Paid</label><input class="fi" id="sLoanPd" type="number" placeholder="0"></div>
+          <div class="stitle">🏦 Loan</div>
+          <div class="fg"><label class="fl">Original Loan Amount (KES)</label><input class="fi" id="sLoanTot" type="number" placeholder="100000"><div class="fhint">Record repayments on the Other Costs page</div></div>
         </div>
         <div style="margin-bottom:20px">
           <div class="stitle">📦 Bale Settings</div>
@@ -205,6 +208,29 @@
     <div class="fg"><label class="fl">Total Revenue (KES)</label><input class="fi" id="sRev"   type="number" placeholder="e.g. 4200" min="0"></div>
     <div class="fg"><label class="fl">Notes (optional)</label>   <input class="fi" id="sNotes" placeholder="e.g. Regular customer, Gikomba trader"></div>
     <button class="btn bp bfull" onclick="saveSale()">Save Sale</button>
+  </div>
+</div>
+
+<!-- MODAL: OTHER COST -->
+<div class="moverlay" id="mCost" style="display:none" onclick="bgClose(event,'mCost')">
+  <div class="modal">
+    <div class="mtitle">💸 Add Cost / Repayment <button class="mclose" onclick="hideModal('mCost')">✕</button></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Date</label><input class="fi" id="cDate" type="date"></div>
+      <div class="fg"><label class="fl">Category</label>
+        <select class="fs" id="cCat">
+          <option value="rent">Rent</option>
+          <option value="wages">Wages</option>
+          <option value="tax">Tax</option>
+          <option value="loan_repayment">Loan Repayment</option>
+          <option value="extra_repayment">Extra Repayment</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Amount (KES)</label><input class="fi" id="cAmount" type="number" placeholder="e.g. 15000" min="0"></div>
+    <div class="fg"><label class="fl">Notes (optional)</label><input class="fi" id="cNotes" placeholder="e.g. June rent"></div>
+    <button class="btn bp bfull" onclick="saveCost()">Save Entry</button>
   </div>
 </div>
 

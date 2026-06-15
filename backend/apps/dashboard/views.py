@@ -22,6 +22,7 @@ from rest_framework.views import APIView
 from apps.purchases.models import Purchase
 from apps.sales.models import Sale, SaleItem
 from apps.shop_settings.views import get_or_create_settings
+from apps.other_costs.models import OtherCost
 
 
 def stock_by_category(user):
@@ -105,14 +106,20 @@ class DashboardView(APIView):
             user=user, date__year=yr, date__month=mo
         ).aggregate(total=Sum("total_cost"))["total"] or Decimal("0")
 
-        # ── Fixed monthly costs ───────────────────────────────────────────────
-        fixed = s.rent + s.wages + s.other + (s.tax / 12) + s.loan_monthly
+        # ── Monthly other costs from OtherCost entries ────────────────────────
+        fixed = OtherCost.objects.filter(
+            user=user, date__year=yr, date__month=mo
+        ).aggregate(t=Sum("amount"))["t"] or Decimal("0")
 
         # ── Net profit ────────────────────────────────────────────────────────
         net = revenue - cogs - fixed
 
-        # ── Loan remaining ────────────────────────────────────────────────────
-        loan_remaining = max(Decimal("0"), s.loan_total - (s.loan_months_paid * s.loan_monthly))
+        # ── Loan remaining (all-time repayments) ──────────────────────────────
+        total_repaid = OtherCost.objects.filter(
+            user=user,
+            category__in=[OtherCost.LOAN_REPAYMENT, OtherCost.EXTRA_REPAYMENT],
+        ).aggregate(t=Sum("amount"))["t"] or Decimal("0")
+        loan_remaining = max(Decimal("0"), s.loan_total - total_repaid)
 
         # ── Stock ─────────────────────────────────────────────────────────────
         stock = stock_by_category(user)
