@@ -18,3 +18,16 @@
 {{ block.super }}
 <a id="mitumba-panel-link" href="/auth/admin/pending/">&#9881; Pending users</a>
 {% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.errornote').forEach(function (el) {
+    if (el.textContent.includes('not authorized to access this page')) {
+      el.textContent = 'You are not authorized to access this page.';
+    }
+  });
+});
+</script>
+{% endblock %}
