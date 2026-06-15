@@ -1,9 +1,15 @@
 /* Mitumba — Django admin style override */
 
-/* ── Header: green ────────────────────────────────────────────────────────── */
-#header { background: #1e4d35; }
-#header a:link, #header a:visited { color: #e9c46a; }
-#branding h1, #branding h1 a:link, #branding h1 a:visited { color: #fff; }
+/* Force light mode */
+html { color-scheme: light !important; }
+
+/* ── Header: match main app ──────────────────────────────────────────────── */
+#header { background: #1a3a2a; padding: 0 16px; height: 52px; display: flex; align-items: center; }
+#header a:link, #header a:visited { color: rgba(255,255,255,.85); }
+#branding { display: flex; align-items: center; }
+#branding h1, #branding h1 a:link, #branding h1 a:visited { color: #fff; font-size: 1.15rem; font-weight: 800; letter-spacing: -.5px; }
+#user-tools { color: rgba(255,255,255,.7); font-size: .8rem; }
+#user-tools a:link, #user-tools a:visited { color: rgba(255,255,255,.85); }
 div.breadcrumbs { background: #2d6a4f; color: #d8f3dc; }
 div.breadcrumbs a { color: #d8f3dc; }
 

@@ -4,8 +4,11 @@
 {% block title %}{{ title }} | Mitumba Admin{% endblock %}
 
 {% block branding %}
-<h1 id="site-name">
-  <a href="{% url 'admin:index' %}">mitumba<span style="color:#e9c46a">.</span> admin</a>
+<h1 id="site-name" style="display:flex;align-items:center;gap:10px">
+  <a href="{% url 'admin:index' %}" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+    <img src="{% static 'img/logo.png' %}" alt="" style="height:28px;width:auto">
+    <span>mitumba<span style="color:#e9c46a">.</span> <span style="font-size:.75rem;font-weight:400;opacity:.7;letter-spacing:1px;text-transform:uppercase">admin</span></span>
+  </a>
 </h1>
 {% endblock %}
 
@@ -14,9 +17,9 @@
 <link rel="stylesheet" href="{% static 'css/admin_override.css' %}">
 {% endblock %}
 
-{% block usertools %}
-{{ block.super }}
-{% endblock %}
+{% block darkmode_toggle %}{% endblock %}
+
+{% block welcome-msg %}{% endblock %}
 
 {% block extrahead %}
 {{ block.super }}
