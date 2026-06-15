@@ -479,14 +479,14 @@ async function renderFinance(yr, mo) {
         <div class="fline ftot"><span class="flab">GROSS PROFIT</span><span class="fval">${fmtKES(d.gross_profit)}</span></div>
       </div>
       <div class="card">
-        <div class="ctitle">Monthly Costs</div>
+        <div class="ctitle">Other Monthly Costs</div>
         ${costLine('🏠 Rent',             d.costs.rent)}
         ${costLine('👤 Wages',            d.costs.wages)}
         ${costLine('🏛️ Tax',              d.costs.tax)}
         ${costLine('🏦 Loan Repayment',   d.costs.loan_repayment)}
         ${costLine('🏦 Extra Repayment',  d.costs.extra_repayment)}
         ${costLine('📦 Other',            d.costs.other)}
-        <div class="fline ftot"><span class="flab">TOTAL COSTS</span><span class="fval tr">${fmtKES(d.costs.total)}</span></div>
+        <div class="fline ftot" style="background:#fff0f0"><span class="flab">TOTAL COSTS</span><span class="fval" style="color:var(--red)">–${fmtKES(d.costs.total)}</span></div>
       </div>
       <div class="card">
         <div class="ctitle">🏦 Loan Status</div>
