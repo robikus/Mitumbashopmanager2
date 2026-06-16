@@ -118,6 +118,7 @@ function loadSettingsUI() {
   if (!_settings) return;
   const s = _settings;
   document.getElementById('sName').value    = s.shop_name || '';
+  document.getElementById('pgShopName').textContent = s.shop_name || '';
   document.getElementById('sLoanTot').value = s.loan_total || '';
   document.getElementById('sUnsell').value  = s.unsellable_rate || 20;
   document.getElementById('sLowSt').value   = s.low_stock_threshold || 10;
@@ -433,6 +434,7 @@ async function renderDashboard() {
     document.getElementById('dNet').textContent   = fmtKES(net);
     document.getElementById('dNet').style.color   = net >= 0 ? 'var(--gold)' : '#ff6b6b';
     document.getElementById('dMonth').textContent = d.month;
+    document.getElementById('pgMonth').textContent = d.month;
     document.getElementById('dRev').textContent   = fmtKES(d.revenue);
     document.getElementById('dCosts').textContent = fmtKES(d.total_costs);
     document.getElementById('dLoan').textContent  = fmtKES(d.loan_remaining);
