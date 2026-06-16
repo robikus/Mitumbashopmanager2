@@ -99,7 +99,7 @@ tr:hover td{background:var(--g1)}
 .sbar.out{background:var(--red)}
 
 /* SETTINGS */
-.stitle{font-family:Arial,sans-serif;font-size:.83rem;font-weight:400;color:var(--g7);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--g2)}
+.stitle{font-family:Arial,sans-serif;font-size:.83rem;font-weight:700;color:var(--g7);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--g2)}
 .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
 /* MONTH BAR */
