@@ -118,7 +118,8 @@ function loadSettingsUI() {
   if (!_settings) return;
   const s = _settings;
   document.getElementById('sName').value    = s.shop_name || '';
-  document.getElementById('pgShopName').textContent = s.shop_name || '';
+  const pgShop = document.getElementById('pgShopName');
+  if (pgShop) pgShop.textContent = s.shop_name || '';
   document.getElementById('sLoanTot').value = s.loan_total || '';
   document.getElementById('sUnsell').value  = s.unsellable_rate || 20;
   document.getElementById('sLowSt').value   = s.low_stock_threshold || 10;
