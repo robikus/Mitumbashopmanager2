@@ -128,7 +128,7 @@ function loadSettingsUI() {
   const g = document.getElementById('sCats');
   g.innerHTML = '';
   for (let i = 0; i < 10; i++) {
-    g.innerHTML += `<div class="fg mb0"><label class="fl">Cat ${i+1}</label><input class="fi" id="sc${i}" value="${cats[i] || ''}"></div>`;
+    g.innerHTML += `<div class="fg mb0"><label class="fl">Category ${i+1}</label><input class="fi" id="sc${i}" value="${cats[i] || ''}"></div>`;
   }
 }
 
