@@ -94,6 +94,14 @@ class PendingUserAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
+    def changelist_view(self, request, extra_context=None):
+        messages.info(
+            request,
+            "This page shows users who have not successfully logged in yet. "
+            "Once a user logs in for the first time, they appear on the User Profiles page.",
+        )
+        return super().changelist_view(request, extra_context)
+
     def get_queryset(self, request):
         logged_in = UserProfile.objects.values_list("user__email", flat=True)
         return super().get_queryset(request).exclude(email__in=logged_in)
