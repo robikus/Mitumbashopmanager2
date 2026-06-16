@@ -95,7 +95,8 @@ class PendingUserAdmin(admin.ModelAdmin):
         return False
 
     def get_queryset(self, request):
-        return super().get_queryset(request)
+        logged_in = UserProfile.objects.values_list("user__email", flat=True)
+        return super().get_queryset(request).exclude(email__in=logged_in)
 
 
 @admin.register(UserProfile)
