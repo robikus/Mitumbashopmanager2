@@ -37,7 +37,7 @@ main{flex:1;padding:16px;max-width:800px;margin:0 auto;width:100%}
 
 /* CARDS */
 .card{background:var(--w);border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:16px}
-.ctitle{font-family:Arial,sans-serif;font-size:1rem;font-weight:700;color:var(--g8);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.ctitle{font-family:Arial,sans-serif;font-size:1rem;font-weight:400;color:var(--gr6);margin-bottom:16px;display:flex;align-items:center;gap:8px}
 
 /* STAT GRID */
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
