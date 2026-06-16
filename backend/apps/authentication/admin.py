@@ -60,12 +60,22 @@ def approve_users(modeladmin, request, queryset):
                 )
 
 
-@admin.action(description="Reject selected users")
+@admin.action(description="Reject selected users — disable Cognito accounts")
 def reject_users(modeladmin, request, queryset):
-    updated = queryset.filter(status=PendingUser.Status.PENDING).update(
-        status=PendingUser.Status.REJECTED
-    )
-    messages.info(request, f"{updated} user(s) rejected.")
+    client = boto3.client("cognito-idp", region_name=settings.COGNITO_REGION)
+    for pending in queryset.exclude(status=PendingUser.Status.REJECTED):
+        pending.status = PendingUser.Status.REJECTED
+        pending.save(update_fields=["status", "updated_at"])
+        try:
+            client.admin_disable_user(
+                UserPoolId=settings.COGNITO_USER_POOL_ID,
+                Username=pending.email,
+            )
+            messages.warning(request, f"{pending.email} rejected and Cognito account disabled.")
+        except client.exceptions.UserNotFoundException:
+            messages.info(request, f"{pending.email} rejected (no Cognito account to disable).")
+        except ClientError as exc:
+            messages.error(request, f"{pending.email}: {exc.response['Error']['Message']}")
 
 
 # ---------------------------------------------------------------------------
