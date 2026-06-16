@@ -114,7 +114,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     readonly_fields = ("get_email", "get_phone", "cognito_sub",
                        "get_created_at", "updated_at",
                        "access_token", "id_token", "refresh_token")
-    fields          = ("get_email", "get_phone", "last_payment", "get_created_at")
+    fields          = ("get_email", "get_phone", "cognito_sub", "last_payment", "get_created_at")
     ordering        = ("-created_at",)
 
     def has_add_permission(self, request):
