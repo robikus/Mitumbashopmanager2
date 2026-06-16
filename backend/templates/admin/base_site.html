@@ -28,6 +28,8 @@
      href="{% url 'admin:authentication_pendinguser_changelist' %}">👥 Pending Users</a>
   <a class="ma-tab{% if 'userprofile' in request.path %} on{% endif %}"
      href="{% url 'admin:authentication_userprofile_changelist' %}">👤 User Profiles</a>
+  <a class="ma-tab{% if 'signinpageconfig' in request.path %} on{% endif %}"
+     href="{% url 'admin:authentication_signinpageconfig_changelist' %}">🔑 Signin Page</a>
 </nav>
 {% endblock %}
 

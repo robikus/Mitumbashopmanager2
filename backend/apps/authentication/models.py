@@ -62,3 +62,24 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.email} ({self.cognito_sub[:8]}…)"
+
+
+class SigninPageConfig(models.Model):
+    """Singleton — editable via admin. Controls text shown on the login page."""
+
+    mpesa_phone = models.CharField(max_length=30, default="0700 000 000")
+    price = models.PositiveIntegerField(default=300)
+
+    class Meta:
+        db_table = "auth_signin_page_config"
+        verbose_name = "Signin Page"
+        verbose_name_plural = "Signin Page"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj

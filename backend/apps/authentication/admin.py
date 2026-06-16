@@ -11,8 +11,10 @@ from botocore.exceptions import ClientError
 from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.auth.models import User, Group
+from django.shortcuts import redirect
+from django.urls import reverse
 
-from .models import PendingUser, UserProfile
+from .models import PendingUser, SigninPageConfig, UserProfile
 
 # Remove built-in auth models — users are managed via Cognito
 admin.site.unregister(User)
@@ -132,3 +134,19 @@ class UserProfileAdmin(admin.ModelAdmin):
     @admin.display(description="Created at (first payment)")
     def get_created_at(self, obj):
         return obj.created_at
+
+
+@admin.register(SigninPageConfig)
+class SigninPageConfigAdmin(admin.ModelAdmin):
+    fields = ("mpesa_phone", "price")
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def changelist_view(self, request, extra_context=None):
+        obj = SigninPageConfig.get()
+        url = reverse("admin:authentication_signinpageconfig_change", args=[obj.pk])
+        return redirect(url)

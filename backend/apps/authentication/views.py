@@ -29,7 +29,7 @@ from django.views.decorators.http import (
     require_http_methods,
 )
 
-from .models import PendingUser, UserProfile
+from .models import PendingUser, SigninPageConfig, UserProfile
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +67,12 @@ def login_redirect(request):
     Unauthenticated users land here before being sent to Cognito.
     """
     error = request.GET.get("error")
-    return render(request, "login.html", {"error": error})
+    config = SigninPageConfig.get()
+    return render(request, "login.html", {
+        "error": error,
+        "mpesa_phone": config.mpesa_phone,
+        "signin_price": config.price,
+    })
 
 
 @require_GET
