@@ -90,6 +90,76 @@ resource "aws_cognito_user_pool_domain" "main" {
   user_pool_id = aws_cognito_user_pool.main.id
 }
 
+# ── Hosted UI CSS customisation ───────────────────────────────────────────────
+# Applies green branding to the Cognito-managed password reset / MFA pages.
+resource "aws_cognito_user_pool_ui_customization" "main" {
+  user_pool_id = aws_cognito_user_pool.main.id
+  client_id    = aws_cognito_user_pool_client.django.id
+
+  depends_on = [aws_cognito_user_pool_domain.main]
+
+  css = <<-CSS
+    .background-customizable {
+      background-color: #f8f9fa;
+    }
+    .modal-content.background-customizable {
+      background-color: #f0faf3;
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.12);
+    }
+    h1.header-customizable {
+      font-family: Arial, sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #1e4d35;
+    }
+    .label-customizable {
+      font-family: Arial, sans-serif;
+      font-weight: 400;
+      color: #6c757d;
+    }
+    .textDescription-customizable {
+      font-family: Arial, sans-serif;
+      color: #343a40;
+    }
+    .legalText-customizable {
+      font-family: Arial, sans-serif;
+      color: #6c757d;
+    }
+    .redirect-customizable {
+      font-family: Arial, sans-serif;
+      color: #2d6a4f;
+    }
+    .redirect-customizable a {
+      color: #2d6a4f;
+    }
+    .inputField-customizable {
+      border: 1.5px solid #e9ecef;
+      border-radius: 8px;
+      font-family: Arial, sans-serif;
+    }
+    .inputField-customizable:focus {
+      border-color: #40916c;
+      box-shadow: 0 0 0 2px rgba(64,145,108,.15);
+    }
+    .submitButton-customizable {
+      background-color: #1e4d35;
+      border-color: #1e4d35;
+      font-family: Arial, sans-serif;
+      font-weight: 700;
+      border-radius: 8px;
+    }
+    .submitButton-customizable:hover {
+      background-color: #2d6a4f;
+      border-color: #2d6a4f;
+    }
+    .errorMessage-customizable {
+      font-family: Arial, sans-serif;
+      color: #e63946;
+    }
+  CSS
+}
+
 # ── App Client ───────────────────────────────────────────────────────────────
 # Used by the Django backend to perform the OAuth2 token exchange.
 resource "aws_cognito_user_pool_client" "django" {
