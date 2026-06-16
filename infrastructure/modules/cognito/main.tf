@@ -102,7 +102,7 @@ resource "aws_cognito_user_pool_ui_customization" "main" {
     .background-customizable {
       background-color: #f0faf3;
     }
-    h1.header-customizable {
+    .header-customizable {
       font-family: Arial, sans-serif;
       font-size: 1.5rem;
       font-weight: 800;
@@ -123,9 +123,6 @@ resource "aws_cognito_user_pool_ui_customization" "main" {
     }
     .redirect-customizable {
       font-family: Arial, sans-serif;
-      color: #2d6a4f;
-    }
-    .redirect-customizable a {
       color: #2d6a4f;
     }
     .inputField-customizable {
