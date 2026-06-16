@@ -434,7 +434,6 @@ async function renderDashboard() {
     const net = d.net_profit;
     document.getElementById('dNet').textContent   = fmtKES(net);
     document.getElementById('dNet').style.color   = net >= 0 ? 'var(--gold)' : '#ff6b6b';
-    document.getElementById('dMonth').textContent = d.month;
     document.getElementById('pgMonth').textContent = d.month;
     document.getElementById('dRev').textContent   = fmtKES(d.revenue);
     document.getElementById('dCosts').textContent = fmtKES(d.total_costs);
