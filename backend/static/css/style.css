@@ -18,9 +18,7 @@ header{background:var(--g8);padding:0 16px;display:flex;align-items:center;justi
 .htitle{font-family:Arial,sans-serif;font-weight:800;font-size:1.15rem;color:var(--w);letter-spacing:-.5px}
 .htitle span{color:var(--gold)}
 .hsubtitle{font-size:.75rem;font-weight:400;opacity:.7;letter-spacing:1px;text-transform:uppercase;color:var(--w)}
-.hbtns{display:flex;gap:8px;align-items:center}
-.hmail{color:rgba(255,255,255,.7);font-size:.8rem;padding:7px 4px}
-@media(max-width:520px){.hsubtitle{display:none}.hmail{display:none}.hbtnlabel{display:none}}
+.hbtns{display:flex;gap:8px;align-items:center}@media(max-width:520px){.hsubtitle{display:none}.hmail{display:none}.hbtnlabel{display:none}}
 .ibtn{background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:7px 10px;color:var(--w);cursor:pointer;font-size:.8rem;display:flex;align-items:center;gap:4px;transition:all .2s;text-decoration:none}
 .ibtn:hover{background:rgba(255,255,255,.2)}
 

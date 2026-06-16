@@ -25,8 +25,7 @@
   <header>
     <div class="htitle"><img src="{% static 'img/logo.png' %}" alt="" style="height:28px;width:auto;vertical-align:middle;margin-right:8px">mitumba<span>.</span> <span class="hsubtitle">shop manager</span></div>
     <div class="hbtns">
-      <span class="hmail" id="userEmail">{{ user_email }}{% if is_staff %} <span style="font-size:.7rem;background:var(--gold);color:var(--g9);border-radius:4px;padding:1px 5px;font-weight:700">admin</span>{% endif %}</span>
-      {% if is_staff %}<a class="ibtn" href="/auth/admin/pending/">&#9881; Users</a>{% endif %}
+{% if is_staff %}<a class="ibtn" href="/auth/admin/pending/">&#9881; Users</a>{% endif %}
       <a class="ibtn" href="/auth/logout/" title="Logout"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> <span class="hbtnlabel">Logout</span></a>
     </div>
   </header>
@@ -141,6 +140,10 @@
     <!-- SETTINGS -->
     <div class="pg" id="pg-settings">
       <div class="card">
+        <div style="margin-bottom:20px">
+          <div class="stitle">👤 User</div>
+          <div class="fg"><label class="fl">User email</label><div style="font-size:.95rem;color:var(--gr8);padding:4px 0">{{ user_email }}</div></div>
+        </div>
         <div style="margin-bottom:20px">
           <div class="stitle">🏪 Shop Info</div>
           <div class="fg"><label class="fl">Shop Name</label><input class="fi" id="sName" placeholder="My Mitumba Shop"></div>
