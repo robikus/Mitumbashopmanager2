@@ -100,10 +100,10 @@ resource "aws_cognito_user_pool_ui_customization" "main" {
 
   css = <<-CSS
     .background-customizable {
-      background-color: #f0faf3;
+      background-color: #f5f5f5;
     }
     .banner-customizable {
-      background-color: #1e4d35;
+      background-color: #40916c;
     }
     .label-customizable {
       font-family: Arial, sans-serif;
@@ -120,27 +120,27 @@ resource "aws_cognito_user_pool_ui_customization" "main" {
     }
     .redirect-customizable {
       font-family: Arial, sans-serif;
-      color: #2d6a4f;
+      color: #40916c;
     }
     .inputField-customizable {
-      border: 1.5px solid #e9ecef;
+      border: 1.5px solid #e0e0e0;
       border-radius: 8px;
       font-family: Arial, sans-serif;
     }
     .inputField-customizable:focus {
-      border-color: #40916c;
-      box-shadow: 0 0 0 2px rgba(64,145,108,.15);
+      border-color: #52b788;
+      box-shadow: 0 0 0 2px rgba(82,183,136,.15);
     }
     .submitButton-customizable {
-      background-color: #1e4d35;
-      border-color: #1e4d35;
+      background-color: #40916c;
+      border-color: #40916c;
       font-family: Arial, sans-serif;
       font-weight: 700;
       border-radius: 8px;
     }
     .submitButton-customizable:hover {
-      background-color: #2d6a4f;
-      border-color: #2d6a4f;
+      background-color: #52b788;
+      border-color: #52b788;
     }
     .errorMessage-customizable {
       font-family: Arial, sans-serif;
