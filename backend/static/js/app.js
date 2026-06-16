@@ -575,6 +575,20 @@ function toast(msg, err) {
   _toastT = setTimeout(() => t.classList.remove('on'), 2800);
 }
 
+// ── Header subtitle overflow guard ────────────────────────────────────────────
+
+function adjustSubtitle() {
+  const sub   = document.querySelector('.hsubtitle');
+  const title = document.querySelector('.htitle');
+  const btns  = document.querySelector('.hbtns');
+  if (!sub || !title || !btns) return;
+  sub.style.display = '';
+  if (title.getBoundingClientRect().right + 8 >= btns.getBoundingClientRect().left) {
+    sub.style.display = 'none';
+  }
+}
+window.addEventListener('resize', adjustSubtitle);
+
 // ── Boot ──────────────────────────────────────────────────────────────────────
 
-document.addEventListener('DOMContentLoaded', initApp);
+document.addEventListener('DOMContentLoaded', () => { initApp(); adjustSubtitle(); });
