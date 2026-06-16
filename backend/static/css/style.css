@@ -60,7 +60,7 @@ main{flex:1;padding:16px;max-width:800px;margin:0 auto;width:100%}
 
 /* FORMS */
 .fg{margin-bottom:14px}
-.fl{display:block;font-size:.8rem;font-weight:600;color:var(--gr6);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.fl{display:block;font-size:.8rem;font-weight:400;color:var(--gr6);margin-bottom:6px}
 .fi,.fs{width:100%;padding:11px 14px;border:1.5px solid var(--gr2);border-radius:var(--rs);font-family:Arial,sans-serif;font-size:.95rem;background:var(--w);color:var(--gr8);outline:none;transition:border .2s}
 .fi:focus,.fs:focus{border-color:var(--g5)}
 .fi.err,.fs.err{border-color:var(--red) !important;background:#fff5f5}
@@ -101,7 +101,7 @@ tr:hover td{background:var(--g1)}
 .sbar.out{background:var(--red)}
 
 /* SETTINGS */
-.stitle{font-family:Arial,sans-serif;font-size:.83rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--g7);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--g2)}
+.stitle{font-family:Arial,sans-serif;font-size:.83rem;font-weight:400;color:var(--g7);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--g2)}
 .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
 /* MONTH BAR */
