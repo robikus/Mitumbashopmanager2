@@ -475,7 +475,7 @@ function costLine(label, amount) {
   if (amount === 0) {
     return `<div class="fline"><span class="flab">${label}</span><span class="fval" style="color:var(--gr5)">KES 0</span></div>`;
   }
-  return `<div class="fline fcost"><span class="flab">${label}</span><span class="fval">–${fmtKES(amount)}</span></div>`;
+  return `<div class="fline fcost"><span class="flab">${label}</span><span class="fval">KES –${fmtN(amount)}</span></div>`;
 }
 
 async function renderFinance(yr, mo) {
@@ -492,7 +492,7 @@ async function renderFinance(yr, mo) {
       <div class="card">
         <div class="ctitle">Revenue &amp; Stock Cost</div>
         <div class="fline"><span class="flab">💰 Total Sales Revenue</span><span class="fval tg">${fmtKES(d.revenue)}</span></div>
-        <div class="fline fcost"><span class="flab">📦 Stock Purchased (Cost)</span><span class="fval">–${fmtKES(d.cogs)}</span></div>
+        <div class="fline fcost"><span class="flab">📦 Stock Purchased (Cost)</span><span class="fval">KES –${fmtN(d.cogs)}</span></div>
         <div class="fline ftot"><span class="flab">GROSS PROFIT</span><span class="fval">${fmtKES(d.gross_profit)}</span></div>
       </div>
       <div class="card">
@@ -503,7 +503,7 @@ async function renderFinance(yr, mo) {
         ${costLine('🏦 Loan Repayment',   d.costs.loan_repayment)}
         ${costLine('🏦 Extra Repayment',  d.costs.extra_repayment)}
         ${costLine('📦 Other',            d.costs.other)}
-        <div class="fline ftot" style="background:#fff0f0"><span class="flab">TOTAL COSTS</span><span class="fval" style="color:var(--red)">–${fmtKES(d.costs.total)}</span></div>
+        <div class="fline ftot" style="background:#fff0f0"><span class="flab">TOTAL COSTS</span><span class="fval" style="color:var(--red)">KES –${fmtN(d.costs.total)}</span></div>
       </div>
       <div class="card">
         <div class="ctitle">🏦 Loan Status</div>
@@ -557,7 +557,7 @@ function fmtD(d) {
   return `${day}/${m}/${y}`;
 }
 function fmtN(n)   { return Math.round(+n).toLocaleString(); }
-function fmtKES(n) { return 'KES ' + Math.round(+n).toLocaleString(); }
+function fmtKES(n) { const v = Math.round(+n); return v < 0 ? 'KES –' + Math.abs(v).toLocaleString() : 'KES ' + v.toLocaleString(); }
 
 let _toastT = null;
 function toast(msg, err) {
