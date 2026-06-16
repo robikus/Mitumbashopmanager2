@@ -11,8 +11,7 @@ html { color-scheme: light !important; }
 #user-tools { color: rgba(255,255,255,.7); font-size: .8rem; }
 #user-tools a:link, #user-tools a:visited { color: rgba(255,255,255,.85); }
 #toggle-nav-sidebar, button[data-theme-switcher], .theme-toggle { display: none !important; }
-div.breadcrumbs { background: #2d6a4f; color: #d8f3dc; }
-div.breadcrumbs a { color: #d8f3dc; }
+div.breadcrumbs { display: none !important; }
 
 /* ── Everything else: light grey ──────────────────────────────────────────── */
 body           { background: #f5f5f5; color: #333; }
@@ -66,7 +65,6 @@ input[type=submit].default:hover         { background: #1e4d35; }
   font-size: 1rem;
   color: #3b82f6;
 }
-#breadcrumbs { display: none !important; }
 #nav-sidebar { display: none !important; }
 #changelist-filter { display: none !important; }
 .main > .content { margin-left: 0 !important; }
@@ -83,6 +81,11 @@ input[type=submit].default:hover         { background: #1e4d35; }
   padding: 0 16px;
   background: #fff;
   border-bottom: 2px solid #e8e8e8;
+  position: sticky;
+  top: 52px;
+  z-index: 100;
+  width: 100%;
+  box-sizing: border-box;
 }
 .ma-tab {
   flex: none;
