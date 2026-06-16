@@ -45,7 +45,7 @@ main{flex:1;padding:16px;max-width:800px;margin:0 auto;width:100%}
 .sbox.red{border-left-color:var(--red)}
 .sbox.gold{border-left-color:var(--gold)}
 .sbox.ora{border-left-color:var(--orange)}
-.slabel{font-size:.74rem;color:var(--gr6);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.slabel{font-size:.74rem;color:var(--g8);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
 .sval{font-family:Arial,sans-serif;font-size:1.35rem;font-weight:700;color:var(--g8)}
 .sval.red{color:var(--red)}
 .sval.gold{color:var(--goldd)}
@@ -56,7 +56,7 @@ main{flex:1;padding:16px;max-width:800px;margin:0 auto;width:100%}
 .pdraw .pamount{font-family:Arial,sans-serif;font-size:2.4rem;font-weight:700;color:var(--gold);margin-bottom:4px}
 .pdraw .psub{color:var(--g2);font-size:.8rem}
 .pdraw-grey{background:var(--w);box-shadow:var(--sh);border-left:4px solid var(--gr6)}
-.pdraw-grey .plabel{color:var(--gr6)}
+.pdraw-grey .plabel{color:var(--g8);font-weight:700}
 
 /* FORMS */
 .fg{margin-bottom:14px}
