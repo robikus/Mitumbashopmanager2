@@ -90,9 +90,12 @@ class PendingUserAdmin(admin.ModelAdmin):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display    = ("get_email", "get_phone", "cognito_sub", "created_at")
+    list_display    = ("get_email", "get_phone", "last_payment", "get_created_at")
     search_fields   = ("user__email", "cognito_sub")
-    readonly_fields = ("cognito_sub", "created_at", "updated_at",
+    readonly_fields = ("cognito_sub", "get_created_at", "updated_at",
+                       "access_token", "id_token", "refresh_token")
+    fields          = ("get_email", "get_phone", "cognito_sub", "last_payment",
+                       "get_created_at", "updated_at",
                        "access_token", "id_token", "refresh_token")
     ordering        = ("-created_at",)
 
@@ -107,3 +110,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     def get_phone(self, obj):
         pending = PendingUser.objects.filter(email=obj.user.email).first()
         return pending.phone if pending else "—"
+
+    @admin.display(description="Created at (first payment)")
+    def get_created_at(self, obj):
+        return obj.created_at

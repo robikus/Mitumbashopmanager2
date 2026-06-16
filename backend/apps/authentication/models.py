@@ -52,6 +52,8 @@ class UserProfile(models.Model):
     access_token  = models.TextField(blank=True)
     id_token      = models.TextField(blank=True)
 
+    last_payment = models.DateField(null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
