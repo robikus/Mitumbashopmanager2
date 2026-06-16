@@ -100,12 +100,7 @@ resource "aws_cognito_user_pool_ui_customization" "main" {
 
   css = <<-CSS
     .background-customizable {
-      background-color: #f8f9fa;
-    }
-    .modal-content.background-customizable {
       background-color: #f0faf3;
-      border-radius: 14px;
-      box-shadow: 0 8px 32px rgba(0,0,0,.12);
     }
     h1.header-customizable {
       font-family: Arial, sans-serif;
