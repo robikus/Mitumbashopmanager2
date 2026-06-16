@@ -102,11 +102,8 @@ resource "aws_cognito_user_pool_ui_customization" "main" {
     .background-customizable {
       background-color: #f0faf3;
     }
-    .header-customizable {
-      font-family: Arial, sans-serif;
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: #1e4d35;
+    .banner-customizable {
+      background-color: #1e4d35;
     }
     .label-customizable {
       font-family: Arial, sans-serif;
