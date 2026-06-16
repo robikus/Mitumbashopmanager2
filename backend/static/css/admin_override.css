@@ -71,7 +71,7 @@ input[type=submit].default:hover         { background: #1e4d35; }
   flex: none;
   display: block;
   padding: 13px 16px;
-  font-family: 'DM Sans', 'Roboto', sans-serif;
+  font-family: Arial, sans-serif;
   font-size: .83rem;
   font-weight: 500;
   color: #666;
