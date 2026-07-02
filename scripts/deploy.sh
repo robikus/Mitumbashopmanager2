@@ -28,7 +28,15 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_DIR="/opt/mitumba"
 VENV="$APP_DIR/venv"
 PYTHON="$VENV/bin/python"
-MANAGE="$PYTHON $APP_DIR/backend/manage.py --settings=config.settings.production"
+MANAGE="$PYTHON $APP_DIR/backend/manage.py"
+
+# Use "sudo env VAR=val cmd" rather than a --settings flag or plain "export":
+# Django's argv parser only looks for --settings in argv[2:], so a flag placed
+# before the subcommand (e.g. "manage.py --settings=X migrate") is silently
+# ignored and falls back to manage.py's default (development), which reads
+# .env.local instead of .env. A plain "export" also won't survive sudo's
+# environment reset, so set it via "env" in the sudo call itself.
+DJANGO_ENV="DJANGO_SETTINGS_MODULE=config.settings.production"
 
 echo "=== Mitumba deploy starting ==="
 echo "Repo: $REPO_DIR"
@@ -57,11 +65,11 @@ fi
 
 # ── 4. Run database migrations ────────────────────────────────────────────────
 echo "--- Running migrations..."
-sudo $MANAGE migrate
+sudo env $DJANGO_ENV $MANAGE migrate
 
 # ── 5. Collect static files ───────────────────────────────────────────────────
 echo "--- Collecting static files..."
-sudo $MANAGE collectstatic --no-input
+sudo env $DJANGO_ENV $MANAGE collectstatic --no-input
 
 # ── 6. Fix directory permissions ──────────────────────────────────────────────
 # www-data (Nginx) needs execute permission to traverse the ubuntu home dir
